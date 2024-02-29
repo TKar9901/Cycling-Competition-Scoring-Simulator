@@ -5,5 +5,7 @@ public class Rider {
     private static String name;
     private static LocalDateTime DOB;
     private static int teamId;
+    private static Race[] racesEnrolled;
+    private static int[][][] raceTimes;
 
 }
