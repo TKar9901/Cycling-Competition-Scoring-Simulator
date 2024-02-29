@@ -2,4 +2,4 @@
 Cycling Project Coursework
 
 # Notes
-Creating any stage/checkpoint needs to use the provided enums
+- [] Creating any stage/checkpoint needs to use the provided enums
