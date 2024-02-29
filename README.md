@@ -2,4 +2,5 @@
 Cycling Project Coursework
 
 # Notes
-- [] Creating any stage/checkpoint needs to use the provided enums
+- creating any stage/checkpoint needs to use the provided enums individually
+- fill in checkpoint parent class
