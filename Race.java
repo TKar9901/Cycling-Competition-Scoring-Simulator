@@ -16,5 +16,9 @@ public class Race {
         this.description = description;
         this.id = id;
     }
+
+    public int getId() {
+        return this.id;
+    }
 }
 
