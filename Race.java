@@ -10,4 +10,11 @@ public class Race {
     private static int mountainClassification;
     private static String name;
     private static String description;
+
+    public Race(String name, String description, int id) {
+        this.name = name;
+        this.description = description;
+        this.id = id;
+    }
 }
+
