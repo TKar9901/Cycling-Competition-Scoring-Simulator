@@ -6,4 +6,17 @@ public class Stage {
     private static double length;
     private static String description;
     private static StageType type;
+
+    public Stage(String name, String description, double length, LocalDateTime startTime, StageType type) {
+        this.id = 
+        this.name = name;
+        this.description = description;
+        this.length = length;
+        this.startTime = startTime;
+        this.type = type;
+    }
+
+    public int getId() {
+        return this.id;
+    }
 }
