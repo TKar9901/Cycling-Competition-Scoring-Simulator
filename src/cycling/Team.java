@@ -1,3 +1,5 @@
+package cycling;
+
 public class Team {
     private static int id;
     private static String name;

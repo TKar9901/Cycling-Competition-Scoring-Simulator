@@ -4,18 +4,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
-
-import javax.naming.InvalidNameException;
-
-import Exceptions.DuplicatedResultException;
-import Exceptions.IDNotRecognisedException;
-import Exceptions.IllegalNameException;
-import Exceptions.InvalidCheckpointTimesException;
-import Exceptions.InvalidLengthException;
-import Exceptions.InvalidLocationException;
-import Exceptions.InvalidStageStateException;
-import Exceptions.InvalidStageTypeException;
-import Exceptions.NameNotRecognisedException;
+import java.math.*;
 
 /**
  * BadCyclingPortal is a minimally compiling, but non-functioning implementor
@@ -25,27 +14,31 @@ import Exceptions.NameNotRecognisedException;
  * @version 2.0
  *
  */
-public class BadCyclingPortalImpl implements CyclingPortal {
+public class CyclingPortalImpl implements CyclingPortal {
 
 	ArrayList<Integer> stageIds = new ArrayList<>();
 	ArrayList<Stage> stages = new ArrayList<>();
 	ArrayList<Integer> raceIds = new ArrayList<>();
 	ArrayList<Race> races = new ArrayList<>();
 
-	public Stage findStage(int stageId) {
+	public Stage findStage(int stageId) throws IDNotRecognisedException {
+		Stage stage = new Stage();
 		for(int i=0; i < stageIds.size(); i++) {
 			if(stageIds.get(i) == stageId) {
-				return stages.get(i);
+				stage = stages.get(i);
 			}
 		}
+		return stage;
 	}
 
 	public Race findRace(int raceId) {
+		Race race = new Race();
 		for(int i=0; i < raceIds.size(); i++) {
 			if(raceIds.get(i) == raceId) {
-				return races.get(i);
+				race = races.get(i);
 			}
 		}
+		return race;
 	}
 
 	@Override
@@ -59,22 +52,21 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 		
 	}
 
+	//Changed to randomized id system, same functinality but our old system would become more complicated once the length of the array it was based on changed
 	@Override
 	public int createRace(String name, String description) throws IllegalNameException, InvalidNameException {
-		int len;
-		if(races.size() < 1) {
-			len = 0;
-		} else {
-			len = races.get(races.size() - 1).getId() + 1;
-		}
-		Race newRace = new Race(name, description, len);
+		int id = (int)Math.floor(Math.random() *(1000 - 1000 + 1) + 1000);
+		Race newRace = new Race(name, description, id);
 		raceIds.add(newRace.getId());
 		races.add(newRace);
+		return newRace.getId();
 	}
 
 	@Override
 	public String viewRaceDetails(int raceId) throws IDNotRecognisedException {
-		//Search through races array for the race whos id matches raceId argument. Return the toString of that race.
+		Race race = findRace(raceId);
+		String details = race.toString();
+		return details;
 	}
 
 	@Override
@@ -91,13 +83,12 @@ public class BadCyclingPortalImpl implements CyclingPortal {
 	@Override
 	public int getNumberOfStages(int raceId) throws IDNotRecognisedException {
 		Race race = findRace(raceId);
-		return race.checkpoints.length;
+		return race.getStages().length;
 	}
 
 	@Override
-	public int addStageToRace(int raceId, String stageName, String description, double length, LocalDateTime startTime,
-			StageType type)
-			throws IDNotRecognisedException, IllegalNameException, InvalidNameException, InvalidLengthException {
+	public int addStageToRace(int raceId, String stageName, String description, double length, LocalDateTime startTime,StageType type) 
+	throws IDNotRecognisedException, IllegalNameException, InvalidNameException, InvalidLengthException {
 			Race race = findRace(raceId);
 
 			Stage newStage = new Stage(stageName, description, length, startTime, type);

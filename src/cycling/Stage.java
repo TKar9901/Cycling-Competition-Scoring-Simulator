@@ -1,11 +1,17 @@
+package cycling;
 import java.time.LocalDateTime;
+
 public class Stage {
-    private static int id;
-    private static String name;
-    private static LocalDateTime startTime;
-    private static double length;
-    private static String description;
-    private static StageType type;
+    private int id;
+    private String name;
+    private LocalDateTime startTime;
+    private double length;
+    private String description;
+    private StageType type;
+
+    public Stage() {
+        
+    }
 
     public Stage(String name, String description, double length, LocalDateTime startTime, StageType type) {
         this.id = 
@@ -18,5 +24,8 @@ public class Stage {
 
     public int getId() {
         return this.id;
+    }
+    public double getLength() {
+        return this.length;
     }
 }
