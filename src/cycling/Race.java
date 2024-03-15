@@ -1,11 +1,12 @@
 package cycling;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 public class Race {
     private int[][] point_leaderboard;
     private int id;
     private static int[][] mountainCheckpointValues;
-    private Stage[] stages;
+    private ArrayList<Stage> stages;
     private Rider[] riders;
     private int generalClassification;
     private int sprinterClassification;
@@ -13,6 +14,8 @@ public class Race {
     private String name;
     private String description;
     private double length;
+    private static ArrayList<Integer> raceIds;
+	private static ArrayList<Race> races;
 
     public Race() {
         
@@ -21,13 +24,15 @@ public class Race {
         this.name = name;
         this.description = description;
         this.id = id;
-    }
 
+        raceIds.add(this.id);
+        races.add(this);
+    }
     public int getId() {
         return this.id;
     }
     public int stageNumber() {
-        return this.stages.length;
+        return this.stages.size();
     }
     public String getName() {
         return this.name;
@@ -37,13 +42,32 @@ public class Race {
     }
     public double getLength() {
         double length = 0;
-        for(int i = 0; i<stages.length - 1; i++) {
-            length = length + stages[i].getLength();
+        for(int i = 0; i<stages.size() - 1; i++) {
+            length = length + stages.get(i).getLength();
         }
         return length;
     }
     public Stage[] getStages() {
-        return this.stages;
+        Stage[] arr = new Stage[stages.size()];
+        return this.stages.toArray(arr);
+    }
+    public static ArrayList<Integer> getRaceIds() {
+        return raceIds;
+    }
+    public static ArrayList<Race> getRaces() {
+        return races;
+    }
+    public static Race findRace(int raceId) {
+		Race race = new Race();
+		for(int i=0; i < raceIds.size(); i++) {
+			if(raceIds.get(i) == raceId) {
+				race = races.get(i);
+			}
+		}
+		return race;
+	}
+    public void addStage(Stage stage) {
+        this.stages.add(stage);
     }
 
     //Any formatted string containing the race ID, name, description, the number of stages, and the total length (i.e., the sum of all stages' length).

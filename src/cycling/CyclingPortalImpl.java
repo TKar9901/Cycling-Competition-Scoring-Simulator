@@ -16,38 +16,12 @@ import java.math.*;
  */
 public class CyclingPortalImpl implements CyclingPortal {
 
-	ArrayList<Integer> stageIds = new ArrayList<>();
-	ArrayList<Stage> stages = new ArrayList<>();
-	ArrayList<Integer> raceIds = new ArrayList<>();
-	ArrayList<Race> races = new ArrayList<>();
-
-	public Stage findStage(int stageId) throws IDNotRecognisedException {
-		Stage stage = new Stage();
-		for(int i=0; i < stageIds.size(); i++) {
-			if(stageIds.get(i) == stageId) {
-				stage = stages.get(i);
-			}
-		}
-		return stage;
-	}
-
-	public Race findRace(int raceId) {
-		Race race = new Race();
-		for(int i=0; i < raceIds.size(); i++) {
-			if(raceIds.get(i) == raceId) {
-				race = races.get(i);
-			}
-		}
-		return race;
-	}
-
 	@Override
 	public int[] getRaceIds() {
-		if(races.size() < 1) {
+		if(Race.getRaces().size() < 1) {
 			return new int[] {};
 		} else {
-			return raceIds.stream().mapToInt(i -> i).toArray();
-
+			return Race.getRaceIds().stream().mapToInt(i -> i).toArray();
 		}
 		
 	}
@@ -55,26 +29,33 @@ public class CyclingPortalImpl implements CyclingPortal {
 	//Changed to randomized id system, same functinality but our old system would become more complicated once the length of the array it was based on changed
 	@Override
 	public int createRace(String name, String description) throws IllegalNameException, InvalidNameException {
-		int id = (int)Math.floor(Math.random() *(1000 - 1000 + 1) + 1000);
+		int id = 0;
+		boolean used = true;
+		while(used) {
+			id = (int)Math.floor(Math.random() *(1000 - 1000 + 1) + 1000);
+			for(int i=0; i<Race.getRaceIds().size(); i++) {
+				if(Race.getRaceIds().get(i) != id) {
+					used = false;
+				}
+			}
+		}
 		Race newRace = new Race(name, description, id);
-		raceIds.add(newRace.getId());
-		races.add(newRace);
 		return newRace.getId();
 	}
 
 	@Override
 	public String viewRaceDetails(int raceId) throws IDNotRecognisedException {
-		Race race = findRace(raceId);
+		Race race = Race.findRace(raceId);
 		String details = race.toString();
 		return details;
 	}
 
 	@Override
 	public void removeRaceById(int raceId) throws IDNotRecognisedException {
-		for(int i=0; i < raceIds.size(); i++) {
-			if(raceIds.get(i) == raceId) {
-				raceIds.remove(i);
-				races.remove(i);
+		for(int i=0; i < Race.getRaceIds().size(); i++) {
+			if(Race.getRaceIds().get(i) == raceId) {
+				Race.getRaceIds().remove(i);
+				Race.getRaces().remove(i);
 			}
 		}
 
@@ -82,55 +63,66 @@ public class CyclingPortalImpl implements CyclingPortal {
 
 	@Override
 	public int getNumberOfStages(int raceId) throws IDNotRecognisedException {
-		Race race = findRace(raceId);
+		Race race = Race.findRace(raceId);
 		return race.getStages().length;
 	}
 
 	@Override
 	public int addStageToRace(int raceId, String stageName, String description, double length, LocalDateTime startTime,StageType type) 
 	throws IDNotRecognisedException, IllegalNameException, InvalidNameException, InvalidLengthException {
-			Race race = findRace(raceId);
-
+			Race race = Race.findRace(raceId);
 			Stage newStage = new Stage(stageName, description, length, startTime, type);
 			int stageId = newStage.getId();
+			race.addStage(newStage);
+			return stageId;
 	}
 
 	@Override
 	public int[] getRaceStages(int raceId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+		return Stage.getStageIds().stream().mapToInt(i -> i).toArray();
 	}
 
 	@Override
 	public double getStageLength(int stageId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return 0;
+		return Stage.findStage(stageId).getLength();
 	}
 
 	@Override
 	public void removeStageById(int stageId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-
+		for(int i=0; i < Stage.getStageIds().size(); i++) {
+			if(Stage.getStageIds().get(i) == stageId) {
+				Stage.getStageIds().remove(i);
+				Stage.getStages().remove(i);
+			}
+		}
 	}
 
 	@Override
 	public int addCategorizedClimbToStage(int stageId, Double location, CheckpointType type, Double averageGradient,
 			Double length) throws IDNotRecognisedException, InvalidLocationException, InvalidStageStateException,
 			InvalidStageTypeException {
-		// TODO Auto-generated method stub
-		return 0;
+		MountainCheckpoint checkpoint = new MountainCheckpoint(location, type, averageGradient, length);
+		Stage.findStage(stageId).getCheckpoints().add(checkpoint);
+		return checkpoint.getId();
 	}
 
 	@Override
 	public int addIntermediateSprintToStage(int stageId, double location) throws IDNotRecognisedException,
 			InvalidLocationException, InvalidStageStateException, InvalidStageTypeException {
-		// TODO Auto-generated method stub
-		return 0;
+		SprintCheckpoint checkpoint = new SprintCheckpoint(location);
+		Stage.findStage(stageId).getCheckpoints().add(checkpoint);
+		return checkpoint.getId();
 	}
 
 	@Override
 	public void removeCheckpoint(int checkpointId) throws IDNotRecognisedException, InvalidStageStateException {
-		// TODO Auto-generated method stub
+		for(int i=0; i<Stage.getStages().size()-1; i++) {
+			for(int j=0; j<Stage.getStages().get(i).getCheckpoints().size()-1; j++) {
+				if(Stage.getStages().get(i).getCheckpoints().get(j).getId() == checkpointId) {
+					Stage.getStages().get(i).getCheckpoints().remove(j);
+				}
+			}
+		}
 
 	}
 
