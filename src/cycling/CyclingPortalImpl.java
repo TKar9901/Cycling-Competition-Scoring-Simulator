@@ -149,7 +149,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 
 	@Override
 	public void removeTeam(int teamId) throws IDNotRecognisedException {
-		for(int i=0; i < Team.getTeamIds().size(); i++) {
+		for(int i=0; i < Team.getTeamIds().size()-1; i++) {
 			if(Team.getTeamIds().get(i) == teamId) {
 				Team.getTeamIds().remove(i);
 				Team.getTeams().remove(i);
@@ -176,24 +176,36 @@ public class CyclingPortalImpl implements CyclingPortal {
 
 	@Override
 	public void removeRider(int riderId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-
+		for(int i=0; i<Race.getRaces().size()-1; i++) {
+			for(int j=0; j<Race.getRaces().get(i).getRiders().size(); i++) {
+				if(Race.getRaces().get(i).getRiders().get(j).getId() == riderId) {
+					Race.getRaces().get(i).getRiders().remove(j);
+				}
+			}
+		}
+		for(int i=0; i<Rider.getRiderIds().size()-1; i++) {
+			if(Rider.getRiderIds().get(i) == riderId) {
+				Rider.getRiderIds().remove(i);
+				Rider.getRiders().remove(i);
+			}
+		}
 	}
 
 	@Override
 	public void registerRiderResultsInStage(int stageId, int riderId, LocalTime... checkpoints)
 			throws IDNotRecognisedException, DuplicatedResultException, InvalidCheckpointTimesException,
 			InvalidStageStateException {
-		// TODO Auto-generated method stub
+		Stage.findStage(stageId).addResults(riderId, checkpoints);
+
 
 	}
 
 	@Override
 	public LocalTime[] getRiderResultsInStage(int stageId, int riderId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+		return Stage.findStage(stageId).getResults(riderId);
 	}
 
+	//Make sure to check functino description, it's wonky inpractice...
 	@Override
 	public LocalTime getRiderAdjustedElapsedTimeInStage(int stageId, int riderId) throws IDNotRecognisedException {
 		// TODO Auto-generated method stub

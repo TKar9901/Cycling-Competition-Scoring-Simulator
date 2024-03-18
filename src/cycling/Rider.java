@@ -16,8 +16,8 @@ public class Rider {
 		boolean used = true;
 		while(used) {
 			id = (int)Math.floor(Math.random() *(1000 - 1000 + 1) + 1000);
-			for(int i=0; i<Rider.getRiderIds().size(); i++) {
-				if(Rider.getRiderIds().get(i) != id) {
+			for(int i=0; i<getRiderIds().size(); i++) {
+				if(getRiderIds().get(i) != id) {
 					used = false;
 				}
 			}
@@ -38,5 +38,14 @@ public class Rider {
     }
     public int getId() {
         return this.id;
+    }
+    public static Rider findRider(int id) {
+        int pos = 0;
+        for(int i=0; i<riderIds.size();i++) {
+            if(riderIds.get(i) == id) {
+                pos = i;
+            }
+        }
+        return riders.get(pos);
     }
 }

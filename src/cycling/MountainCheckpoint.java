@@ -18,8 +18,8 @@ public class MountainCheckpoint extends Checkpoint{
 		boolean used = true;
 		while(used) {
 			id = (int)Math.floor(Math.random() *(1000 - 1000 + 1) + 1000);
-			for(int i=0; i<MountainCheckpoint.getCheckpointIds().size(); i++) {
-				if(MountainCheckpoint.getCheckpointIds().get(i) != id) {
+			for(int i=0; i<getCheckpointIds().size(); i++) {
+				if(getCheckpointIds().get(i) != id) {
 					used = false;
 				}
 			}

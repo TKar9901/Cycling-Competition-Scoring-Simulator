@@ -7,10 +7,10 @@ public class Race {
     private int id;
     private static int[][] mountainCheckpointValues;
     private ArrayList<Stage> stages;
-    private Rider[] riders;
-    private int generalClassification;
-    private int sprinterClassification;
-    private int mountainClassification;
+    private ArrayList<Rider> riders;
+    private int[] generalClassification;
+    private int[] sprinterClassification;
+    private int[] mountainClassification;
     private String name;
     private String description;
     private double length;
@@ -68,6 +68,9 @@ public class Race {
 	}
     public void addStage(Stage stage) {
         this.stages.add(stage);
+    }
+    public ArrayList<Rider> getRiders() {
+        return this.riders;
     }
 
     //Any formatted string containing the race ID, name, description, the number of stages, and the total length (i.e., the sum of all stages' length).

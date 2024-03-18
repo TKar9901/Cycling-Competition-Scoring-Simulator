@@ -1,6 +1,8 @@
 package cycling;
+import java.time.LocalTime;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Map;
 
 public class Stage {
     private int id;
@@ -13,6 +15,8 @@ public class Stage {
 	private static ArrayList<Stage> stages;
     private static ArrayList<Checkpoint> checkpoints;
     private String state;
+    //First column rider id second their times
+    private Map<Integer, LocalTime[]> riderTimes;
 
     public Stage() {
         
@@ -23,8 +27,8 @@ public class Stage {
 		boolean used = true;
 		while(used) {
 			id = (int)Math.floor(Math.random() *(1000 - 1000 + 1) + 1000);
-			for(int i=0; i<Stage.getStageIds().size(); i++) {
-				if(Stage.getStageIds().get(i) != id) {
+			for(int i=0; i<getStageIds().size(); i++) {
+				if(getStageIds().get(i) != id) {
 					used = false;
 				}
 			}
@@ -39,13 +43,13 @@ public class Stage {
         stages.add(this);
     }
     public static Stage findStage(int stageId) throws IDNotRecognisedException {
-		Stage stage = new Stage();
-		for(int i=0; i < Stage.stageIds.size(); i++) {
-			if(Stage.stageIds.get(i) == stageId) {
-				stage = Stage.stages.get(i);
+		int pos = 0;
+		for(int i=0; i < stageIds.size(); i++) {
+			if(stageIds.get(i) == stageId) {
+				pos = i;
 			}
 		}
-		return stage;
+		return stages.get(pos);
 	}
     public static ArrayList<Integer> getStageIds() {
         return stageIds;
@@ -65,5 +69,11 @@ public class Stage {
     }
     public void setState() {
         this.state = "waiting for results";
+    }
+    public void addResults(int id, LocalTime[] times) {
+        this.riderTimes.put(id, times);
+    }
+    public LocalTime[] getResults(int id) {
+        return this.riderTimes.get(id);
     }
 }
