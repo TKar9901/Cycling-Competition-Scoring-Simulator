@@ -128,45 +128,50 @@ public class CyclingPortalImpl implements CyclingPortal {
 
 	@Override
 	public void concludeStagePreparation(int stageId) throws IDNotRecognisedException, InvalidStageStateException {
-		// TODO Auto-generated method stub
-
+		Stage.findStage(stageId).setState();
 	}
 
 	@Override
 	public int[] getStageCheckpoints(int stageId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+		Checkpoint [] checkpoints = (Checkpoint[]) Stage.findStage(stageId).getCheckpoints().toArray();
+		int[] checkpointIds = new int[checkpoints.length];
+		for(int i=0; i<checkpoints.length-1; i++) {
+			checkpointIds[i] = checkpoints[i].getId();
+		}
+		return checkpointIds;
 	}
 
 	@Override
 	public int createTeam(String name, String description) throws IllegalNameException, InvalidNameException {
-		// TODO Auto-generated method stub
-		return 0;
+		Team newTeam = new Team(name, description);
+		return newTeam.getId();
 	}
 
 	@Override
 	public void removeTeam(int teamId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-
+		for(int i=0; i < Team.getTeamIds().size(); i++) {
+			if(Team.getTeamIds().get(i) == teamId) {
+				Team.getTeamIds().remove(i);
+				Team.getTeams().remove(i);
+			}
+		}
 	}
 
 	@Override
 	public int[] getTeams() {
-		// TODO Auto-generated method stub
-		return null;
+		return Team.getTeamIds().stream().mapToInt(i -> i).toArray();
 	}
 
 	@Override
 	public int[] getTeamRiders(int teamId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+		return Team.findTeam(teamId).getRiders().stream().mapToInt(i -> i).toArray();
 	}
 
 	@Override
 	public int createRider(int teamID, String name, int yearOfBirth)
 			throws IDNotRecognisedException, IllegalArgumentException {
-		// TODO Auto-generated method stub
-		return 0;
+		Rider newRider = new Rider(teamID, name, yearOfBirth);
+		return newRider.getId();
 	}
 
 	@Override

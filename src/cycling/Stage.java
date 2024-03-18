@@ -12,6 +12,7 @@ public class Stage {
     private static ArrayList<Integer> stageIds;
 	private static ArrayList<Stage> stages;
     private static ArrayList<Checkpoint> checkpoints;
+    private String state;
 
     public Stage() {
         
@@ -29,7 +30,7 @@ public class Stage {
 			}
 		}
         stageIds.add(this.id);
-
+        this.id = id;
         this.name = name;
         this.description = description;
         this.length = length;
@@ -61,5 +62,8 @@ public class Stage {
     }
     public double getLength() {
         return this.length;
+    }
+    public void setState() {
+        this.state = "waiting for results";
     }
 }

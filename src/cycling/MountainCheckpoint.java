@@ -25,6 +25,7 @@ public class MountainCheckpoint extends Checkpoint{
 			}
 		}
 
+        this.id = id;
         this.location = location;
         this.type = type;
         this.gradient = gradient;
