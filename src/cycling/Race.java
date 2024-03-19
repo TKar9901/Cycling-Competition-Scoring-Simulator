@@ -27,7 +27,7 @@ public class Race {
 		boolean used = true;
 		while(used) {
 			id = (int)Math.floor(Math.random() *(1000 - 1000 + 1) + 1000);
-			for(int i=0; i<races.size()-1; i++) {
+			for(int i=0; i<races.size(); i++) {
 				if(races.containsKey(id) == false) {
 					used = false;
 				}
@@ -53,7 +53,7 @@ public class Race {
     }
     public double getLength() {
         double length = 0;
-        for(int i = 0; i<stages.size() - 1; i++) {
+        for(int i = 0; i<stages.size(); i++) {
             length = length + stages.get(i).getLength();
         }
         return length;
@@ -90,7 +90,7 @@ public class Race {
     public static Race findStage(int stageId) {
         Race race = new Race();
         int[] raceIds = getRaceIds();
-		for(int i=0; i<raceIds.length-1; i++) {
+		for(int i=0; i<raceIds.length; i++) {
 			if(races.get(raceIds[i]).getStages().containsKey(stageId)) {
                 race = races.get(raceIds[i]);
             }

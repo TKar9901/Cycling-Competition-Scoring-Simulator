@@ -47,7 +47,7 @@ public class Team {
 		boolean used = true;
 		while(used) {
 			id = (int)Math.floor(Math.random() *(1000 - 1000 + 1) + 1000);
-			for(int i=0; i<riders.size()-1; i++) {
+			for(int i=0; i<=riders.size()-1; i++) {
 				if(riders.containsKey(id) == false) {
 					used = false;
 				}
@@ -55,5 +55,15 @@ public class Team {
 		}
         this.riders.put(id, new Rider(name, yearOfBirth, id));
         return id;
+    }
+    public static Team findRider(int riderId) {
+        Team team = new Team();
+        int[] teamIds = getTeamIds();
+		for(int i=0; i<teamIds.length; i++) {
+			if(teams.get(teamIds[i]).getRiders().containsKey(riderId)) {
+                team = teams.get(teamIds[i]);
+            }
+        }
+        return team;
     }
 }

@@ -14,6 +14,7 @@ public class Stage {
     private Map<Integer, Checkpoint> checkpoints;
     private String state;
     private Map<Integer, LocalTime[]> riderTimes;
+    private ArrayList<Integer> riderPositions;
 
     public Stage() {
         
@@ -50,7 +51,7 @@ public class Stage {
 		boolean used = true;
 		while(used) {
 			id = (int)Math.floor(Math.random() *(1000 - 1000 + 1) + 1000);
-			for(int i=0; i<checkpoints.size()-1; i++) {
+			for(int i=0; i<checkpoints.size(); i++) {
 				if(checkpoints.containsKey(id) == false) {
 					used = false;
 				}
@@ -64,7 +65,7 @@ public class Stage {
 		boolean used = true;
 		while(used) {
 			id = (int)Math.floor(Math.random() *(1000 - 1000 + 1) + 1000);
-			for(int i=0; i<checkpoints.size()-1; i++) {
+			for(int i=0; i<checkpoints.size(); i++) {
 				if(checkpoints.containsKey(id) == false) {
 					used = false;
 				}
@@ -77,8 +78,8 @@ public class Stage {
         Stage stage = new Stage();
         int[] raceIds = Race.getRaceIds();
         int[] stageIds = Race.getStageIds();
-        for(int i=0; i<raceIds.length-1; i++) {
-            for(int j=0; j<Race.getRaces().get(raceIds[i]).getStages().size()-1; i++) {
+        for(int i=0; i<raceIds.length; i++) {
+            for(int j=0; j<Race.getRaces().get(raceIds[i]).getStages().size(); i++) {
                 if(Race.getRaces().get(raceIds[i]).getStages()
                 .get(stageIds[j]).getCheckpoints().containsKey(checkpointId)) {
                     stage = Race.getRaces().get(raceIds[i]).getStages().get(stageIds[j]);
@@ -86,5 +87,11 @@ public class Stage {
             }
         }
         return stage;
+    }
+    public Map<Integer, LocalTime[]> getRiderTimes() {
+        return this.riderTimes;
+    }
+    public ArrayList<Integer> getRiderPositions() {
+        return this.riderPositions;
     }
 }

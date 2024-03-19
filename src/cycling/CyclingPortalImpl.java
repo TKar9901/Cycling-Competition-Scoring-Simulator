@@ -6,6 +6,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Map;
 import java.math.*;
+import java.time.Duration;
 
 /**
  * BadCyclingPortal is a minimally compiling, but non-functioning implementor
@@ -66,7 +67,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 	public double getStageLength(int stageId) throws IDNotRecognisedException {
 		int[] raceIds = getRaceIds();
 		double length = 0;
-		for(int i=0; i<raceIds.length-1; i++) {
+		for(int i=0; i<raceIds.length; i++) {
 			if(Race.getRaces().get(raceIds[i]).getStages().containsKey(stageId)) {
 				length = Race.getRaces().get(raceIds[i]).getStages().get(stageId).getLength();
 			}
@@ -137,35 +138,64 @@ public class CyclingPortalImpl implements CyclingPortal {
 			return Team.getTeams().get(teamID).addRider(name, yearOfBirth);
 	}
 
+	//Come back to final leaderboard issue to remove racers from that too
 	@Override
 	public void removeRider(int riderId) throws IDNotRecognisedException {
-		for(int i=0; i<Race.getRaces().size()-1; i++) {
-			for(int j=0; j<Race.getRaces().get(i).getRiders().size(); i++) {
-				if(Race.getRaces().get(i).getRiders().get(j).getId() == riderId) {
-					Race.getRaces().get(i).getRiders().remove(j);
-				}
+		for(int i=0; i<Team.findRider(riderId).getRiders().get(riderId).getRacesEnrolled().size(); i++) {
+			int currRaceId = Team.findRider(riderId).getRiders().get(riderId).getRacesEnrolled().get(i);
+			for(int j=0; j<Race.getRaces().get(currRaceId).getStages().size();j++) {
+				int currStageId = Race.getRaces().get(currRaceId).getStageIds()[j];
+				Race.findStage(currStageId).getStages().get(currStageId).getRiderTimes().remove(riderId);
 			}
+			
 		}
-		for(int i=0; i<Rider.getRiderIds().size()-1; i++) {
-			if(Rider.getRiderIds().get(i) == riderId) {
-				Rider.getRiderIds().remove(i);
-				Rider.getRiders().remove(i);
-			}
-		}
+		
+		Team.findRider(riderId).getRiders().remove(riderId);
 	}
-
+	//JAKE
 	@Override
 	public void registerRiderResultsInStage(int stageId, int riderId, LocalTime... checkpoints)
 			throws IDNotRecognisedException, DuplicatedResultException, InvalidCheckpointTimesException,
 			InvalidStageStateException {
-		Stage.findStage(stageId).addResults(riderId, checkpoints);
+		LocalTime midnight = LocalTime.parse("00:00:00");
+		Duration elapsedTime = Duration.between(checkpoints[0], checkpoints[checkpoints.length-1]);
+		checkpoints[checkpoints.length-1] = midnight.plus(elapsedTime);
+		
+		Race.findStage(stageId).getStages().get(stageId).getRiderTimes().put(riderId, checkpoints);
+		for(int i=0; i<Team.findRider(riderId).getRiders().get(riderId).getRacesEnrolled().size();i++) {
+			if(Team.findRider(riderId).getRiders().get(riderId).getRacesEnrolled().get(i) != Race.findStage(stageId).getId()) {
+				Team.findRider(riderId).getRiders().get(riderId).getRacesEnrolled().add(Race.findStage(stageId).getId());
+			} 
+		}
 
-
+		for(int i=0; i<Race.findStage(stageId).getStages().get(stageId).getRiderPositions().size(); i++) {
+			if(Race.findStage(stageId).getStages().get(stageId).getRiderPositions().size() == 0) {
+				Race.findStage(stageId).getStages().get(stageId).getRiderPositions().add(riderId);
+			}
+			else if(Race.findStage(stageId).getStages().get(stageId).getRiderTimes()
+			.get((Race.findStage(stageId).getStages().get(stageId).getRiderPositions().get(i)))[0].
+			compareTo(checkpoints[checkpoints.length-1]) == 1 || Race.findStage(stageId).getStages().get(stageId).getRiderTimes()
+			.get((Race.findStage(stageId).getStages().get(stageId).getRiderPositions().get(i)))[0].
+			compareTo(checkpoints[checkpoints.length-1]) == 0) {
+				Race.findStage(stageId).getStages().get(stageId).getRiderPositions().add(i-1, riderId);
+			} 
+			else if(Race.findStage(stageId).getStages().get(stageId).getRiderTimes()
+			.get((Race.findStage(stageId).getStages().get(stageId).getRiderPositions().get(
+				Race.findStage(stageId).getStages().get(stageId).getRiderPositions().size()-1)))[0].
+			compareTo(checkpoints[checkpoints.length-1]) == 1 || 
+			Race.findStage(stageId).getStages().get(stageId).getRiderTimes()
+			.get((Race.findStage(stageId).getStages().get(stageId).getRiderPositions().get(
+				Race.findStage(stageId).getStages().get(stageId).getRiderPositions().size()-1)))[0].
+			compareTo(checkpoints[checkpoints.length-1]) == 0) {
+				Race.findStage(stageId).getStages().get(stageId).getRiderPositions().add(riderId);
+			}
+		
+		}
 	}
 
 	@Override
 	public LocalTime[] getRiderResultsInStage(int stageId, int riderId) throws IDNotRecognisedException {
-		return Stage.findStage(stageId).getResults(riderId);
+		return Race.findStage(stageId).getStages().get(stageId).getRiderTimes().get(riderId);
 	}
 
 	//Make sure to check functino description, it's wonky inpractice...
@@ -177,8 +207,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 
 	@Override
 	public void deleteRiderResultsInStage(int stageId, int riderId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-
+		Race.findStage(stageId).getStages().get(stageId).getRiderTimes().remove(riderId);
 	}
 
 	@Override

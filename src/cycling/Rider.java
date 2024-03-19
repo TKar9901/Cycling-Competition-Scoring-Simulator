@@ -6,7 +6,7 @@ public class Rider {
     private int id;
     private String name;
     private int yearOfBirth;
-    private ArrayList<Race> racesEnrolled;
+    private ArrayList<Integer> racesEnrolled;
 
     public Rider(String name, int yearOfBirth, int id) {
         this.id = id;
@@ -16,5 +16,8 @@ public class Rider {
 
     public int getId() {
         return this.id;
+    }
+    public ArrayList<Integer> getRacesEnrolled() {
+        return this.racesEnrolled;
     }
 }
