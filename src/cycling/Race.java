@@ -1,12 +1,13 @@
 package cycling;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
 
 public class Race {
     private int[][] point_leaderboard;
     private int id;
     private static int[][] mountainCheckpointValues;
-    private ArrayList<Stage> stages;
     private ArrayList<Rider> riders;
     private int[] generalClassification;
     private int[] sprinterClassification;
@@ -14,19 +15,29 @@ public class Race {
     private String name;
     private String description;
     private double length;
-    private static ArrayList<Integer> raceIds;
-	private static ArrayList<Race> races;
+    private static Map<Integer, Race> races;
+    private Map<Integer, Stage> stages;
+    private static ArrayList<Integer> usedStageIds;
 
     public Race() {
         
     }
-    public Race(String name, String description, int id) {
+    public Race(String name, String description) {
+        int id = 0;
+		boolean used = true;
+		while(used) {
+			id = (int)Math.floor(Math.random() *(1000 - 1000 + 1) + 1000);
+			for(int i=0; i<races.size()-1; i++) {
+				if(races.containsKey(id) == false) {
+					used = false;
+				}
+			}
+		}
+
         this.name = name;
         this.description = description;
         this.id = id;
-
-        raceIds.add(this.id);
-        races.add(this);
+        races.put(this.id, this);
     }
     public int getId() {
         return this.id;
@@ -47,30 +58,44 @@ public class Race {
         }
         return length;
     }
-    public Stage[] getStages() {
-        Stage[] arr = new Stage[stages.size()];
-        return this.stages.toArray(arr);
+    public static int[] getRaceIds() {
+        return races.keySet().stream().mapToInt(Integer::intValue).toArray();
     }
-    public static ArrayList<Integer> getRaceIds() {
-        return raceIds;
+    public static int[] getStageIds() {
+        return usedStageIds.stream().mapToInt(Integer::intValue).toArray();
     }
-    public static ArrayList<Race> getRaces() {
+    public static Map<Integer, Race> getRaces() {
         return races;
     }
-    public static Race findRace(int raceId) {
-		Race race = new Race();
-		for(int i=0; i < raceIds.size(); i++) {
-			if(raceIds.get(i) == raceId) {
-				race = races.get(i);
+    public int addStage(String name, String description, double Length, LocalDateTime starTime, StageType type) {
+        int id = 0;
+		boolean used = true;
+		while(used) {
+			id = (int)Math.floor(Math.random() *(1000 - 1000 + 1) + 1000);
+			for(int i=0; i<stages.size()-1; i++) {
+				if(stages.containsKey(id) == false) {
+					used = false;
+				}
 			}
 		}
-		return race;
-	}
-    public void addStage(Stage stage) {
-        this.stages.add(stage);
+        this.stages.put(id, new Stage(name, description, length, starTime, type, id));
+        return id;
     }
     public ArrayList<Rider> getRiders() {
         return this.riders;
+    }
+    public Map<Integer, Stage> getStages() {
+        return this.stages;
+    }
+    public static Race findStage(int stageId) {
+        Race race = new Race();
+        int[] raceIds = getRaceIds();
+		for(int i=0; i<raceIds.length-1; i++) {
+			if(races.get(raceIds[i]).getStages().containsKey(stageId)) {
+                race = races.get(raceIds[i]);
+            }
+        }
+        return race;
     }
 
     //Any formatted string containing the race ID, name, description, the number of stages, and the total length (i.e., the sum of all stages' length).

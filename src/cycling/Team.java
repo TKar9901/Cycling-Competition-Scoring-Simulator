@@ -1,13 +1,14 @@
 package cycling;
 import java.util.ArrayList;
+import java.util.Map;
 
 public class Team {
     private int id;
     private String name;
     private String description;
-    private ArrayList<Integer> riders;
-    private static ArrayList<Team> teams;
-    private static ArrayList<Integer> teamIds;
+    private static Map<Integer, Team> teams;
+    private Map<Integer, Rider> riders;
+    private static ArrayList<Integer> usedRiderIds;
 
     public Team() {
 
@@ -17,38 +18,42 @@ public class Team {
 		boolean used = true;
 		while(used) {
 			id = (int)Math.floor(Math.random() *(1000 - 1000 + 1) + 1000);
-			for(int i=0; i<Team.getTeamIds().size(); i++) {
-				if(Team.getTeamIds().get(i) != id) {
+			for(int i=0; i<teams.size(); i++) {
+				if(teams.containsKey(id) == false) {
 					used = false;
 				}
 			}
 		}
-        teamIds.add(this.id);
-        
         this.id = id;
         this.name = name;
         this.description = description;
+        teams.put(this.id, this);
     }
 
-    public static ArrayList<Integer> getTeamIds() {
-        return teamIds;
+    public static int[] getTeamIds() {
+        return teams.keySet().stream().mapToInt(Integer::intValue).toArray();
     }
-    public static ArrayList<Team> getTeams() {
+    public static Map<Integer, Team> getTeams() {
         return teams;
     }
     public int getId() {
         return this.id;
     }
-    public static Team findTeam(int teamId) {
-        Team team = new Team();
-		for(int i=0; i < Team.teamIds.size(); i++) {
-			if(Team.teamIds.get(i) == teamId) {
-				team = Team.teams.get(i);
+    public Map<Integer, Rider> getRiders() {
+        return this.riders;
+    }
+    public int addRider(String name, int yearOfBirth) {
+        int id = 0;
+		boolean used = true;
+		while(used) {
+			id = (int)Math.floor(Math.random() *(1000 - 1000 + 1) + 1000);
+			for(int i=0; i<riders.size()-1; i++) {
+				if(riders.containsKey(id) == false) {
+					used = false;
+				}
 			}
 		}
-		return team;
-    }
-    public ArrayList<Integer> getRiders() {
-        return this.riders;
+        this.riders.put(id, new Rider(name, yearOfBirth, id));
+        return id;
     }
 }

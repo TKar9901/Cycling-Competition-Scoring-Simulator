@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Map;
 import java.math.*;
 
 /**
@@ -21,7 +22,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(Race.getRaces().size() < 1) {
 			return new int[] {};
 		} else {
-			return Race.getRaceIds().stream().mapToInt(i -> i).toArray();
+			return Race.getRaceIds();
 		}
 		
 	}
@@ -29,116 +30,83 @@ public class CyclingPortalImpl implements CyclingPortal {
 	//Changed to randomized id system, same functinality but our old system would become more complicated once the length of the array it was based on changed
 	@Override
 	public int createRace(String name, String description) throws IllegalNameException, InvalidNameException {
-		int id = 0;
-		boolean used = true;
-		while(used) {
-			id = (int)Math.floor(Math.random() *(1000 - 1000 + 1) + 1000);
-			for(int i=0; i<Race.getRaceIds().size(); i++) {
-				if(Race.getRaceIds().get(i) != id) {
-					used = false;
-				}
-			}
-		}
-		Race newRace = new Race(name, description, id);
+		Race newRace = new Race(name, description);
 		return newRace.getId();
 	}
 
 	@Override
 	public String viewRaceDetails(int raceId) throws IDNotRecognisedException {
-		Race race = Race.findRace(raceId);
-		String details = race.toString();
-		return details;
+		Race race = Race.getRaces().get(raceId);
+		return race.toString();
 	}
 
 	@Override
 	public void removeRaceById(int raceId) throws IDNotRecognisedException {
-		for(int i=0; i < Race.getRaceIds().size(); i++) {
-			if(Race.getRaceIds().get(i) == raceId) {
-				Race.getRaceIds().remove(i);
-				Race.getRaces().remove(i);
-			}
-		}
-
+		Race.getRaces().remove(raceId);
 	}
 
 	@Override
 	public int getNumberOfStages(int raceId) throws IDNotRecognisedException {
-		Race race = Race.findRace(raceId);
-		return race.getStages().length;
+		return Race.getRaces().get(raceId).getStages().size();
 	}
 
 	@Override
 	public int addStageToRace(int raceId, String stageName, String description, double length, LocalDateTime startTime,StageType type) 
 	throws IDNotRecognisedException, IllegalNameException, InvalidNameException, InvalidLengthException {
-			Race race = Race.findRace(raceId);
-			Stage newStage = new Stage(stageName, description, length, startTime, type);
-			int stageId = newStage.getId();
-			race.addStage(newStage);
-			return stageId;
+			return Race.getRaces().get(raceId).addStage(stageName, description, length, startTime, type);
 	}
 
 	@Override
 	public int[] getRaceStages(int raceId) throws IDNotRecognisedException {
-		return Stage.getStageIds().stream().mapToInt(i -> i).toArray();
+		return Race.getRaces().get(raceId).getStages().keySet()
+		.stream().mapToInt(Integer::intValue).toArray();
 	}
 
 	@Override
 	public double getStageLength(int stageId) throws IDNotRecognisedException {
-		return Stage.findStage(stageId).getLength();
+		int[] raceIds = getRaceIds();
+		double length = 0;
+		for(int i=0; i<raceIds.length-1; i++) {
+			if(Race.getRaces().get(raceIds[i]).getStages().containsKey(stageId)) {
+				length = Race.getRaces().get(raceIds[i]).getStages().get(stageId).getLength();
+			}
+		}
+		return length;
 	}
 
 	@Override
 	public void removeStageById(int stageId) throws IDNotRecognisedException {
-		for(int i=0; i < Stage.getStageIds().size(); i++) {
-			if(Stage.getStageIds().get(i) == stageId) {
-				Stage.getStageIds().remove(i);
-				Stage.getStages().remove(i);
-			}
-		}
+		Race.findStage(stageId).getStages().remove(stageId);
 	}
 
 	@Override
 	public int addCategorizedClimbToStage(int stageId, Double location, CheckpointType type, Double averageGradient,
 			Double length) throws IDNotRecognisedException, InvalidLocationException, InvalidStageStateException,
 			InvalidStageTypeException {
-		MountainCheckpoint checkpoint = new MountainCheckpoint(location, type, averageGradient, length);
-		Stage.findStage(stageId).getCheckpoints().add(checkpoint);
-		return checkpoint.getId();
+		return Race.findStage(stageId).getStages().get(stageId).addMountainCheckpoint(location, type, averageGradient, length);
 	}
 
 	@Override
 	public int addIntermediateSprintToStage(int stageId, double location) throws IDNotRecognisedException,
 			InvalidLocationException, InvalidStageStateException, InvalidStageTypeException {
-		SprintCheckpoint checkpoint = new SprintCheckpoint(location);
-		Stage.findStage(stageId).getCheckpoints().add(checkpoint);
-		return checkpoint.getId();
+		return Race.findStage(stageId).getStages().get(stageId).addSprintCheckpoint(location);
 	}
 
 	@Override
 	public void removeCheckpoint(int checkpointId) throws IDNotRecognisedException, InvalidStageStateException {
-		for(int i=0; i<Stage.getStages().size()-1; i++) {
-			for(int j=0; j<Stage.getStages().get(i).getCheckpoints().size()-1; j++) {
-				if(Stage.getStages().get(i).getCheckpoints().get(j).getId() == checkpointId) {
-					Stage.getStages().get(i).getCheckpoints().remove(j);
-				}
-			}
-		}
-
+		Stage.findCheckpoint(checkpointId).getCheckpoints().remove(checkpointId);
 	}
 
 	@Override
 	public void concludeStagePreparation(int stageId) throws IDNotRecognisedException, InvalidStageStateException {
-		Stage.findStage(stageId).setState();
+		Race.findStage(stageId).getStages().get(stageId).setState();
 	}
 
 	@Override
 	public int[] getStageCheckpoints(int stageId) throws IDNotRecognisedException {
-		Checkpoint [] checkpoints = (Checkpoint[]) Stage.findStage(stageId).getCheckpoints().toArray();
-		int[] checkpointIds = new int[checkpoints.length];
-		for(int i=0; i<checkpoints.length-1; i++) {
-			checkpointIds[i] = checkpoints[i].getId();
-		}
-		return checkpointIds;
+		return Race.findStage(stageId)
+		.getStages().get(stageId).getCheckpoints().keySet().stream().
+		mapToInt(Integer:: intValue).toArray();
 	}
 
 	@Override
@@ -149,29 +117,24 @@ public class CyclingPortalImpl implements CyclingPortal {
 
 	@Override
 	public void removeTeam(int teamId) throws IDNotRecognisedException {
-		for(int i=0; i < Team.getTeamIds().size()-1; i++) {
-			if(Team.getTeamIds().get(i) == teamId) {
-				Team.getTeamIds().remove(i);
-				Team.getTeams().remove(i);
-			}
-		}
+		Team.getTeams().remove(teamId);
 	}
 
 	@Override
 	public int[] getTeams() {
-		return Team.getTeamIds().stream().mapToInt(i -> i).toArray();
+		return Team.getTeamIds();
 	}
 
 	@Override
 	public int[] getTeamRiders(int teamId) throws IDNotRecognisedException {
-		return Team.findTeam(teamId).getRiders().stream().mapToInt(i -> i).toArray();
+		return Team.getTeams().get(teamId).getRiders().keySet()
+		.stream().mapToInt(Integer::intValue).toArray();
 	}
 
 	@Override
 	public int createRider(int teamID, String name, int yearOfBirth)
 			throws IDNotRecognisedException, IllegalArgumentException {
-		Rider newRider = new Rider(teamID, name, yearOfBirth);
-		return newRider.getId();
+			return Team.getTeams().get(teamID).addRider(name, yearOfBirth);
 	}
 
 	@Override
