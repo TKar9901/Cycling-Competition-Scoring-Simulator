@@ -97,7 +97,7 @@ public class Race {
         }
         return race.getStages().get(stageId);
     }
-    public Race findStagesRace(int stageId) {
+    public static Race findStagesRace(int stageId) {
         return Race.findStage(stageId).getRace();
     }
     public static Race findRace(int raceId) {

@@ -37,8 +37,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 
 	@Override
 	public String viewRaceDetails(int raceId) throws IDNotRecognisedException {
-		Race race = Race.getRaces().get(raceId);
-		return race.toString();
+		return Race.findRace(raceId).toString();
 	}
 
 	@Override
@@ -48,13 +47,13 @@ public class CyclingPortalImpl implements CyclingPortal {
 
 	@Override
 	public int getNumberOfStages(int raceId) throws IDNotRecognisedException {
-		return Race.getRaces().get(raceId).getStages().size();
+		return Race.findRace(raceId).getStages().size();
 	}
 
 	@Override
 	public int addStageToRace(int raceId, String stageName, String description, double length, LocalDateTime startTime,StageType type) 
 	throws IDNotRecognisedException, IllegalNameException, InvalidNameException, InvalidLengthException {
-			return Race.getRaces().get(raceId).addStage(stageName, description, length, startTime, type);
+			return Race.findRace(raceId).addStage(stageName, description, length, startTime, type);
 	}
 
 	@Override
@@ -68,8 +67,8 @@ public class CyclingPortalImpl implements CyclingPortal {
 		int[] raceIds = getRaceIds();
 		double length = 0;
 		for(int i=0; i<raceIds.length; i++) {
-			if(Race.getRaces().get(raceIds[i]).getStages().containsKey(stageId)) {
-				length = Race.getRaces().get(raceIds[i]).getStages().get(stageId).getLength();
+			if(Race.findStagesRace(stageId).getStages().containsKey(stageId)) {
+				length = Race.findStage(stageId).getLength();
 			}
 		}
 		return length;
@@ -220,8 +219,8 @@ public class CyclingPortalImpl implements CyclingPortal {
 
 	@Override
 	public int[] getRidersRankInStage(int stageId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+		return Race.findStage(stageId).getRiderPositions().stream().
+		mapToInt(Integer::intValue).toArray();
 	}
 
 	@Override
