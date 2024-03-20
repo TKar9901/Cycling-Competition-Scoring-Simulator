@@ -16,7 +16,8 @@ public class Stage {
     private String state;
     private Map<Integer, LocalTime[]> riderTimes;
     private ArrayList<Integer> riderPositions;
-
+    private static ArrayList<Integer> usedCheckpointIds;
+    
     public Stage() {
         
     }
@@ -29,6 +30,7 @@ public class Stage {
         this.startTime = startTime;
         this.type = type;
         this.race = race;
+        this.state = "in preparation";
     }
     public Map<Integer, Checkpoint> getCheckpoints() {
         return checkpoints;
@@ -36,11 +38,23 @@ public class Stage {
     public int getId() {
         return this.id;
     }
+    public String getName() {
+        return this.name;
+    }
     public double getLength() {
         return this.length;
     }
+    public String getState() {
+        return this.state;
+    }
     public void setState() {
         this.state = "waiting for results";
+    }
+    public static int[] getCheckpointIds() {
+        return usedCheckpointIds.stream().mapToInt(Integer::intValue).toArray();
+    }
+    public StageType getType() {
+        return this.type;
     }
     public void addResults(int id, LocalTime[] times) {
         this.riderTimes.put(id, times);
@@ -76,7 +90,7 @@ public class Stage {
         this.checkpoints.put(id, new SprintCheckpoint(location));
         return id;
     }
-    public static Stage findCheckpoint(int checkpointId) {
+    public static Stage findCheckpointsStage(int checkpointId) {
         Stage stage = new Stage();
         int[] raceIds = Race.getRaceIds();
         int[] stageIds = Race.getStageIds();

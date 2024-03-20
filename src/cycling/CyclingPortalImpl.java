@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.math.*;
 import java.time.Duration;
+import java.lang.Double;
 
 /**
  * BadCyclingPortal is a minimally compiling, but non-functioning implementor
@@ -31,39 +32,119 @@ public class CyclingPortalImpl implements CyclingPortal {
 	//Changed to randomized id system, same functinality but our old system would become more complicated once the length of the array it was based on changed
 	@Override
 	public int createRace(String name, String description) throws IllegalNameException, InvalidNameException {
+		if(name==null || name=="" || name.length()>20 || name.contains(" ")){ //TODO: FIND CHARACTER LIMIT FOR RACE NAME??
+			throw new InvalidNameException("You have entered an incorrectly formatted race name, ensure it is a string of characters with no spaces.");
+		}
+		for(Race r: Race.getRaces().values()) {
+			if(r.getName() == name) {
+				throw new IllegalNameException("You have entered a name that is already in use, ensure you are using unique name per race.");
+			}
+		}
+
 		Race newRace = new Race(name, description);
 		return newRace.getId();
 	}
 
 	@Override
 	public String viewRaceDetails(int raceId) throws IDNotRecognisedException {
+		boolean found = false;
+		for(int id: Race.getRaceIds()) {
+			if(raceId == id) {
+				found = true;
+			}
+		}
+		if(found == false) {
+			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined race.");
+		}
+
 		return Race.findRace(raceId).toString();
 	}
 
 	@Override
 	public void removeRaceById(int raceId) throws IDNotRecognisedException {
+		boolean found = false;
+		for(int id: Race.getRaceIds()) {
+			if(raceId == id) {
+				found = true;
+			}
+		}
+		if(found == false) {
+			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined race.");
+		}
+
 		Race.getRaces().remove(raceId);
 	}
 
 	@Override
 	public int getNumberOfStages(int raceId) throws IDNotRecognisedException {
+		boolean found = false;
+		for(int id: Race.getRaceIds()) {
+			if(raceId == id) {
+				found = true;
+			}
+		}
+		if(found == false) {
+			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined race.");
+		}
+		
 		return Race.findRace(raceId).getStages().size();
 	}
 
 	@Override
-	public int addStageToRace(int raceId, String stageName, String description, double length, LocalDateTime startTime,StageType type) 
+	public int addStageToRace(int raceId, String stageName, String description, double length, LocalDateTime startTime, StageType type) 
 	throws IDNotRecognisedException, IllegalNameException, InvalidNameException, InvalidLengthException {
-			return Race.findRace(raceId).addStage(stageName, description, length, startTime, type);
+		boolean found = false;
+		for(Race r: Race.getRaces().values()) {
+			if(raceId == r.getId()) {
+				found = true;
+			}
+			for(Stage s: r.getStages().values()) {
+				if(s.getName() == stageName) {
+					throw new IllegalNameException("You have entered a name that is already in use, ensure you are using unique name per stage.");
+				}
+			}
+		}
+		if(found == false) {
+			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined race.");
+		}
+		if(stageName==null || stageName=="" || stageName.length()>20 || stageName.contains(" ")){ //TODO: FIND CHARACTER LIMIT FOR STAGE NAME??
+			throw new InvalidNameException("You have entered an incorrectly formatted stage name, ensure it is a string of characters with no spaces.");
+		}
+		if(Double.valueOf(length) == null || length<5) {
+			throw new InvalidLengthException("You have entered an incorrectly formatted stage length, ensure it is a decimal greater than 5km.");
+		}
+
+		return Race.findRace(raceId).addStage(stageName, description, length, startTime, type);
 	}
 
 	@Override
 	public int[] getRaceStages(int raceId) throws IDNotRecognisedException {
+		boolean found = false;
+		for(int id: Race.getRaceIds()) {
+			if(raceId == id) {
+				found = true;
+			}
+		}
+		if(found == false) {
+			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined race.");
+		}
+		
 		return Race.getRaces().get(raceId).getStages().keySet()
 		.stream().mapToInt(Integer::intValue).toArray();
 	}
 
 	@Override
 	public double getStageLength(int stageId) throws IDNotRecognisedException {
+		boolean found = false;
+		for(int id: Race.getStageIds()) {
+			if(stageId == id) {
+				found = true;
+			}
+		}
+		if(found == false) {
+			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined stage.");
+		}
+
 		int[] raceIds = getRaceIds();
 		double length = 0;
 		for(int i=0; i<raceIds.length; i++) {
@@ -76,6 +157,16 @@ public class CyclingPortalImpl implements CyclingPortal {
 
 	@Override
 	public void removeStageById(int stageId) throws IDNotRecognisedException {
+		boolean found = false;
+		for(int id: Race.getStageIds()) {
+			if(stageId == id) {
+				found = true;
+			}
+		}
+		if(found == false) {
+			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined stage.");
+		}
+
 		Race.findStage(stageId).getRace().getStages().remove(stageId);
 	}
 
@@ -83,39 +174,133 @@ public class CyclingPortalImpl implements CyclingPortal {
 	public int addCategorizedClimbToStage(int stageId, Double location, CheckpointType type, Double averageGradient,
 			Double length) throws IDNotRecognisedException, InvalidLocationException, InvalidStageStateException,
 			InvalidStageTypeException {
+		boolean found = false;
+		for(int id: Race.getStageIds()) {
+			if(stageId == id) {
+				found = true;
+			}
+		}
+		if(found == false) {
+			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined stage.");
+		}
+		if(location<0 || location>Race.findStage(stageId).getLength()) {
+			throw new InvalidLocationException("You have entered an incorrectly formatted location, ensure it is between 0 and length of the chosen stage.");
+		}
+		if(Race.findStage(stageId).getState() != "in preparation") {
+			throw new InvalidStageStateException("You can no longer add details to this stage as preparation phase has already been concluded.");
+		}
+		if(Race.findStage(stageId).getType() == StageType.TT) {
+			throw new InvalidStageTypeException("You cannot add this checkpoint type to a time trial stage, ensure you have entered the intended stage ID.");
+		}
+		
 		return Race.findStage(stageId).addMountainCheckpoint(location, type, averageGradient, length);
 	}
 
 	@Override
 	public int addIntermediateSprintToStage(int stageId, double location) throws IDNotRecognisedException,
 			InvalidLocationException, InvalidStageStateException, InvalidStageTypeException {
+		boolean found = false;
+		for(int id: Race.getStageIds()) {
+			if(stageId == id) {
+				found = true;
+			}
+		}
+		if(found == false) {
+			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined stage.");
+		}
+		if(location<0 || location>Race.findStage(stageId).getLength()) {
+			throw new InvalidLocationException("You have entered an incorrectly formatted location, ensure it is between 0 and length of the chosen stage.");
+		}
+		if(Race.findStage(stageId).getState() != "in preparation") {
+			throw new InvalidStageStateException("You can no longer change the details of this stage as preparation phase has already been concluded.");
+		}
+		if(Race.findStage(stageId).getType() == StageType.TT) {
+			throw new InvalidStageTypeException("You cannot add this checkpoint type to a time trial stage, ensure you have entered the intended stage ID.");
+		}
+		
 		return Race.findStage(stageId).addSprintCheckpoint(location);
 	}
 
 	@Override
 	public void removeCheckpoint(int checkpointId) throws IDNotRecognisedException, InvalidStageStateException {
-		Stage.findCheckpoint(checkpointId).getCheckpoints().remove(checkpointId);
+		boolean found = false;
+		for(int id: Stage.getCheckpointIds()) {
+			if(checkpointId == id) {
+				found = true;
+			}
+		}
+		if(found == false) {
+			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined checkpoint.");
+		}
+		if(Stage.findCheckpointsStage(checkpointId).getState() != "in preparation") {
+			throw new InvalidStageStateException("You can no longer change the details of this stage as preparation phase has already been concluded.");
+		}
+		
+		Stage.findCheckpointsStage(checkpointId).getCheckpoints().remove(checkpointId);
 	}
 
 	@Override
 	public void concludeStagePreparation(int stageId) throws IDNotRecognisedException, InvalidStageStateException {
+		boolean found = false;
+		for(int id: Race.getStageIds()) {
+			if(stageId == id) {
+				found = true;
+			}
+		}
+		if(found == false) {
+			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined stage.");
+		}
+		if(Race.findStage(stageId).getState() != "in preparation") {
+			throw new InvalidStageStateException("You can no longer change the details of this stage as preparation phase has already been concluded.");
+		}
+		
 		Race.findStage(stageId).setState();
 	}
 
 	@Override
 	public int[] getStageCheckpoints(int stageId) throws IDNotRecognisedException {
+		boolean found = false;
+		for(int id: Race.getStageIds()) {
+			if(stageId == id) {
+				found = true;
+			}
+		}
+		if(found == false) {
+			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined stage.");
+		}
+		
 		return Race.findStage(stageId).getCheckpoints().keySet().stream().
 		mapToInt(Integer:: intValue).toArray();
 	}
 
 	@Override
 	public int createTeam(String name, String description) throws IllegalNameException, InvalidNameException {
+		boolean found = false;
+		for(Team t: Team.getTeams().values()) {
+			if(t.getName() == name) {
+				throw new IllegalNameException("You have entered a name that is already in use, ensure you are using unique name per team.");
+			}
+		}
+		if(name==null || name=="" || name.length()>20 || name.contains(" ")){ //TODO: FIND CHARACTER LIMIT FOR TEAM NAME??
+			throw new InvalidNameException("You have entered an incorrectly formatted team name, ensure it is a string of characters with no spaces.");
+		}
+		
 		Team newTeam = new Team(name, description);
 		return newTeam.getId();
 	}
 
 	@Override
 	public void removeTeam(int teamId) throws IDNotRecognisedException {
+		boolean found = false;
+		for(int id: Team.getTeamIds()) {
+			if(teamId == id) {
+				found = true;
+			}
+		}
+		if(found == false) {
+			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined team.");
+		}
+		
 		Team.getTeams().remove(teamId);
 	}
 
@@ -126,23 +311,53 @@ public class CyclingPortalImpl implements CyclingPortal {
 
 	@Override
 	public int[] getTeamRiders(int teamId) throws IDNotRecognisedException {
+		boolean found = false;
+		for(int id: Team.getTeamIds()) {
+			if(teamId == id) {
+				found = true;
+			}
+		}
+		if(found == false) {
+			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined team.");
+		}
+		
 		return Team.findTeam(teamId).getRiders().keySet()
 		.stream().mapToInt(Integer::intValue).toArray();
 	}
 
 	@Override
-	public int createRider(int teamID, String name, int yearOfBirth)
+	public int createRider(int teamId, String name, int yearOfBirth)
 			throws IDNotRecognisedException, IllegalArgumentException {
-			return Team.findTeam(teamID).addRider(name, yearOfBirth);
+		boolean found = false;
+		for(int id: Team.getTeamIds()) {
+			if(teamId == id) {
+				found = true;
+			}
+		}
+		if(found == false) {
+			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined team.");
+		}
+
+		return Team.findTeam(teamId).addRider(name, yearOfBirth);
 	}
 
-	//Come back to final leaderboard issue to remove racers from that too
+	//TODO: Come back to final leaderboard issue to remove racers from that too
 	@Override
 	public void removeRider(int riderId) throws IDNotRecognisedException {
+		boolean found = false;
+		for(int id: Team.getRiderIds()) {
+			if(riderId == id) {
+				found = true;
+			}
+		}
+		if(found == false) {
+			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined rider.");
+		}
+		
 		ArrayList<Integer> riderRaces = Team.findRider(riderId).getRacesEnrolled();
 		for(int i=0; i<riderRaces.size(); i++) {
 			for(int j=0; j<Race.findRace(riderRaces.get(i)).getStages().size();j++) {
-				int currStageId = Race.findRace(riderRaces.get(i)).getStageIds()[j];
+				int currStageId = Race.getStageIds()[j];
 				Race.findStage(currStageId).getRiderTimes().remove(riderId);
 			}
 			

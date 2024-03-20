@@ -79,6 +79,7 @@ public class Race {
 			}
 		}
         this.stages.put(id, new Stage(name, description, length, starTime, type, id, this));
+        usedStageIds.add(id);
         return id;
     }
     public ArrayList<Rider> getRiders() {

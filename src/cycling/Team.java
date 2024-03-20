@@ -33,11 +33,17 @@ public class Team {
     public static int[] getTeamIds() {
         return teams.keySet().stream().mapToInt(Integer::intValue).toArray();
     }
+    public static int[] getRiderIds() {
+        return usedRiderIds.stream().mapToInt(Integer::intValue).toArray();
+    }
     public static Map<Integer, Team> getTeams() {
         return teams;
     }
     public int getId() {
         return this.id;
+    }
+    public String getName() {
+        return this.name;
     }
     public Map<Integer, Rider> getRiders() {
         return this.riders;
