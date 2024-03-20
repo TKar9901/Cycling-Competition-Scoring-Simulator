@@ -9,6 +9,7 @@ public class Stage {
     private String name;
     private LocalDateTime startTime;
     private double length;
+    private Race race;
     private String description;
     private StageType type;
     private Map<Integer, Checkpoint> checkpoints;
@@ -20,13 +21,14 @@ public class Stage {
         
     }
 
-    public Stage(String name, String description, double length, LocalDateTime startTime, StageType type, int id) {
+    public Stage(String name, String description, double length, LocalDateTime startTime, StageType type, int id, Race race) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.length = length;
         this.startTime = startTime;
         this.type = type;
+        this.race = race;
     }
     public Map<Integer, Checkpoint> getCheckpoints() {
         return checkpoints;
@@ -93,5 +95,8 @@ public class Stage {
     }
     public ArrayList<Integer> getRiderPositions() {
         return this.riderPositions;
+    }
+    public Race getRace() {
+        return this.race;
     }
 }

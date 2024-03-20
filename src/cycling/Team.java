@@ -53,10 +53,10 @@ public class Team {
 				}
 			}
 		}
-        this.riders.put(id, new Rider(name, yearOfBirth, id));
+        this.riders.put(id, new Rider(name, yearOfBirth, id, this));
         return id;
     }
-    public static Team findRider(int riderId) {
+    public static Rider findRider(int riderId) {
         Team team = new Team();
         int[] teamIds = getTeamIds();
 		for(int i=0; i<teamIds.length; i++) {
@@ -64,6 +64,9 @@ public class Team {
                 team = teams.get(teamIds[i]);
             }
         }
-        return team;
+        return team.riders.get(riderId);
     }
+    public static Team findTeam(int teamId) {
+        return teams.get(teamId);
+    } 
 }

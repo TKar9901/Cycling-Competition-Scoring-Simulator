@@ -77,20 +77,20 @@ public class CyclingPortalImpl implements CyclingPortal {
 
 	@Override
 	public void removeStageById(int stageId) throws IDNotRecognisedException {
-		Race.findStage(stageId).getStages().remove(stageId);
+		Race.findStage(stageId).getRace().getStages().remove(stageId);
 	}
 
 	@Override
 	public int addCategorizedClimbToStage(int stageId, Double location, CheckpointType type, Double averageGradient,
 			Double length) throws IDNotRecognisedException, InvalidLocationException, InvalidStageStateException,
 			InvalidStageTypeException {
-		return Race.findStage(stageId).getStages().get(stageId).addMountainCheckpoint(location, type, averageGradient, length);
+		return Race.findStage(stageId).addMountainCheckpoint(location, type, averageGradient, length);
 	}
 
 	@Override
 	public int addIntermediateSprintToStage(int stageId, double location) throws IDNotRecognisedException,
 			InvalidLocationException, InvalidStageStateException, InvalidStageTypeException {
-		return Race.findStage(stageId).getStages().get(stageId).addSprintCheckpoint(location);
+		return Race.findStage(stageId).addSprintCheckpoint(location);
 	}
 
 	@Override
@@ -100,13 +100,12 @@ public class CyclingPortalImpl implements CyclingPortal {
 
 	@Override
 	public void concludeStagePreparation(int stageId) throws IDNotRecognisedException, InvalidStageStateException {
-		Race.findStage(stageId).getStages().get(stageId).setState();
+		Race.findStage(stageId).setState();
 	}
 
 	@Override
 	public int[] getStageCheckpoints(int stageId) throws IDNotRecognisedException {
-		return Race.findStage(stageId)
-		.getStages().get(stageId).getCheckpoints().keySet().stream().
+		return Race.findStage(stageId).getCheckpoints().keySet().stream().
 		mapToInt(Integer:: intValue).toArray();
 	}
 
@@ -128,74 +127,83 @@ public class CyclingPortalImpl implements CyclingPortal {
 
 	@Override
 	public int[] getTeamRiders(int teamId) throws IDNotRecognisedException {
-		return Team.getTeams().get(teamId).getRiders().keySet()
+		return Team.findTeam(teamId).getRiders().keySet()
 		.stream().mapToInt(Integer::intValue).toArray();
 	}
 
 	@Override
 	public int createRider(int teamID, String name, int yearOfBirth)
 			throws IDNotRecognisedException, IllegalArgumentException {
-			return Team.getTeams().get(teamID).addRider(name, yearOfBirth);
+			return Team.findTeam(teamID).addRider(name, yearOfBirth);
 	}
 
 	//Come back to final leaderboard issue to remove racers from that too
 	@Override
 	public void removeRider(int riderId) throws IDNotRecognisedException {
-		for(int i=0; i<Team.findRider(riderId).getRiders().get(riderId).getRacesEnrolled().size(); i++) {
-			int currRaceId = Team.findRider(riderId).getRiders().get(riderId).getRacesEnrolled().get(i);
-			for(int j=0; j<Race.getRaces().get(currRaceId).getStages().size();j++) {
-				int currStageId = Race.getRaces().get(currRaceId).getStageIds()[j];
-				Race.findStage(currStageId).getStages().get(currStageId).getRiderTimes().remove(riderId);
+		ArrayList<Integer> riderRaces = Team.findRider(riderId).getRacesEnrolled();
+		for(int i=0; i<riderRaces.size(); i++) {
+			for(int j=0; j<Race.findRace(riderRaces.get(i)).getStages().size();j++) {
+				int currStageId = Race.findRace(riderRaces.get(i)).getStageIds()[j];
+				Race.findStage(currStageId).getRiderTimes().remove(riderId);
 			}
 			
 		}
 		
-		Team.findRider(riderId).getRiders().remove(riderId);
+		Team.findRider(riderId).getTeam().getRiders().remove(riderId);
 	}
 	//JAKE
 	@Override
 	public void registerRiderResultsInStage(int stageId, int riderId, LocalTime... checkpoints)
 			throws IDNotRecognisedException, DuplicatedResultException, InvalidCheckpointTimesException,
 			InvalidStageStateException {
+		//Calculate the elapsed time for that stage and convert it into the format wanted and add it to the stage's results
 		LocalTime midnight = LocalTime.parse("00:00:00");
 		Duration elapsedTime = Duration.between(checkpoints[0], checkpoints[checkpoints.length-1]);
 		checkpoints[checkpoints.length-1] = midnight.plus(elapsedTime);
-		
-		Race.findStage(stageId).getStages().get(stageId).getRiderTimes().put(riderId, checkpoints);
-		for(int i=0; i<Team.findRider(riderId).getRiders().get(riderId).getRacesEnrolled().size();i++) {
-			if(Team.findRider(riderId).getRiders().get(riderId).getRacesEnrolled().get(i) != Race.findStage(stageId).getId()) {
-				Team.findRider(riderId).getRiders().get(riderId).getRacesEnrolled().add(Race.findStage(stageId).getId());
-			} 
+		Race.findStage(stageId).getRiderTimes().put(riderId, checkpoints);
+
+		//If the race hasnt already been added to a rider's races, add it
+		ArrayList<Integer> riderRaces = Team.findRider(riderId).getRacesEnrolled();
+		for(int i=0; i<riderRaces.size();i++) {
+			if(riderRaces.get(i) == Race.findStage(stageId).getRace().getId()) {
+				break;
+			}
+			if(i==riderRaces.size()-1) {
+				Team.findRider(riderId).getRacesEnrolled().add(Race.findStage(stageId).getRace().getId());
+			}
 		}
 
-		for(int i=0; i<Race.findStage(stageId).getStages().get(stageId).getRiderPositions().size(); i++) {
-			if(Race.findStage(stageId).getStages().get(stageId).getRiderPositions().size() == 0) {
-				Race.findStage(stageId).getStages().get(stageId).getRiderPositions().add(riderId);
+		//Insert the rider id at the appropriate position on the stages leaderboard
+		int[] stagePositions = Race.findStage(stageId).getRiderPositions().stream().mapToInt(Integer::intValue).toArray();
+		Map<Integer, LocalTime[]> riderTimes = Race.findStage(stageId).getRiderTimes();
+		for(int i=0; i<stagePositions.length; i++) {
+			LocalTime currentRacersFinish = riderTimes.get(stagePositions[i])[riderTimes.get(stagePositions[i]).length-1];
+			//In the case it is the first result place it in
+			if(stagePositions.length == 0) {
+				Race.findStage(stageId).getRiderPositions().add(riderId);
+				break;
 			}
-			else if(Race.findStage(stageId).getStages().get(stageId).getRiderTimes()
-			.get((Race.findStage(stageId).getStages().get(stageId).getRiderPositions().get(i)))[0].
-			compareTo(checkpoints[checkpoints.length-1]) == 1 || Race.findStage(stageId).getStages().get(stageId).getRiderTimes()
-			.get((Race.findStage(stageId).getStages().get(stageId).getRiderPositions().get(i)))[0].
-			compareTo(checkpoints[checkpoints.length-1]) == 0) {
-				Race.findStage(stageId).getStages().get(stageId).getRiderPositions().add(i-1, riderId);
-			} 
-			else if(Race.findStage(stageId).getStages().get(stageId).getRiderTimes()
-			.get((Race.findStage(stageId).getStages().get(stageId).getRiderPositions().get(
-				Race.findStage(stageId).getStages().get(stageId).getRiderPositions().size()-1)))[0].
-			compareTo(checkpoints[checkpoints.length-1]) == 1 || 
-			Race.findStage(stageId).getStages().get(stageId).getRiderTimes()
-			.get((Race.findStage(stageId).getStages().get(stageId).getRiderPositions().get(
-				Race.findStage(stageId).getStages().get(stageId).getRiderPositions().size()-1)))[0].
-			compareTo(checkpoints[checkpoints.length-1]) == 0) {
-				Race.findStage(stageId).getStages().get(stageId).getRiderPositions().add(riderId);
+			//In the case it is faster than an index or the same speed place it before
+			else if(checkpoints[checkpoints.length-1].compareTo(currentRacersFinish)
+			==-1 || checkpoints[checkpoints.length-1].compareTo(currentRacersFinish)
+			==0) {
+				Race.findStage(stageId).getRiderPositions().add(i-1, riderId);
+				break;
 			}
-		
+			//In the case it is the slowest time yet
+			else if(checkpoints[checkpoints.length-1].compareTo(riderTimes.get(stagePositions[stagePositions.length-1])[checkpoints.length-1])
+			==1) {
+				Race.findStage(stageId).getRiderPositions().add(riderId);
+			}
+				
 		}
+		
 	}
+	
 
 	@Override
 	public LocalTime[] getRiderResultsInStage(int stageId, int riderId) throws IDNotRecognisedException {
-		return Race.findStage(stageId).getStages().get(stageId).getRiderTimes().get(riderId);
+		return Race.findStage(stageId).getRiderTimes().get(riderId);
 	}
 
 	//Make sure to check functino description, it's wonky inpractice...
@@ -207,7 +215,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 
 	@Override
 	public void deleteRiderResultsInStage(int stageId, int riderId) throws IDNotRecognisedException {
-		Race.findStage(stageId).getStages().get(stageId).getRiderTimes().remove(riderId);
+		Race.findStage(stageId).getRiderTimes().remove(riderId);
 	}
 
 	@Override

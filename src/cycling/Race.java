@@ -78,7 +78,7 @@ public class Race {
 				}
 			}
 		}
-        this.stages.put(id, new Stage(name, description, length, starTime, type, id));
+        this.stages.put(id, new Stage(name, description, length, starTime, type, id, this));
         return id;
     }
     public ArrayList<Rider> getRiders() {
@@ -87,7 +87,7 @@ public class Race {
     public Map<Integer, Stage> getStages() {
         return this.stages;
     }
-    public static Race findStage(int stageId) {
+    public static Stage findStage(int stageId) {
         Race race = new Race();
         int[] raceIds = getRaceIds();
 		for(int i=0; i<raceIds.length; i++) {
@@ -95,7 +95,13 @@ public class Race {
                 race = races.get(raceIds[i]);
             }
         }
-        return race;
+        return race.getStages().get(stageId);
+    }
+    public Race findStagesRace(int stageId) {
+        return Race.findStage(stageId).getRace();
+    }
+    public static Race findRace(int raceId) {
+        return races.get(raceId);
     }
 
     //Any formatted string containing the race ID, name, description, the number of stages, and the total length (i.e., the sum of all stages' length).
