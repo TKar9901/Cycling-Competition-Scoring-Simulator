@@ -13,8 +13,8 @@ import java.lang.Double;
  * BadCyclingPortal is a minimally compiling, but non-functioning implementor
  * of the CyclingPortal interface.
  * 
- * @author Diogo Pacheco
- * @version 2.0
+ * @author Jake Klar, Tamanna Kar
+ * @version 3.0
  *
  */
 public class CyclingPortalImpl implements CyclingPortal {
@@ -275,13 +275,13 @@ public class CyclingPortalImpl implements CyclingPortal {
 
 	@Override
 	public int createTeam(String name, String description) throws IllegalNameException, InvalidNameException {
-		boolean found = false;
 		for(Team t: Team.getTeams().values()) {
 			if(t.getName() == name) {
 				throw new IllegalNameException("You have entered a name that is already in use, ensure you are using unique name per team.");
 			}
 		}
-		if(name==null || name=="" || name.length()>20 || name.contains(" ")){ //TODO: FIND CHARACTER LIMIT FOR TEAM NAME??
+		
+		if(name==null || name.equals("") || name.length()>20 || name.contains(" ")){ //TODO: FIND CHARACTER LIMIT FOR TEAM NAME??
 			throw new InvalidNameException("You have entered an incorrectly formatted team name, ensure it is a string of characters with no spaces.");
 		}
 		
@@ -420,7 +420,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 		return Race.findStage(stageId).getRiderTimes().get(riderId);
 	}
 
-	//Make sure to check functino description, it's wonky inpractice...
+	//TODO: Do this one together, I'm not sure best way to go about it
 	@Override
 	public LocalTime getRiderAdjustedElapsedTimeInStage(int stageId, int riderId) throws IDNotRecognisedException {
 		// TODO Auto-generated method stub
@@ -438,6 +438,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 		mapToInt(Integer::intValue).toArray();
 	}
 
+	//Do this once done getRiderAdjustedElapsedTimeInStage
 	@Override
 	public LocalTime[] getRankedAdjustedElapsedTimesInStage(int stageId) throws IDNotRecognisedException {
 		// TODO Auto-generated method stub

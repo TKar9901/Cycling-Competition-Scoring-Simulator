@@ -2,6 +2,7 @@ package cycling;
 import java.time.LocalTime;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 public class Stage {
@@ -12,9 +13,9 @@ public class Stage {
     private Race race;
     private String description;
     private StageType type;
-    private Map<Integer, Checkpoint> checkpoints;
+    private Map<Integer, Checkpoint> checkpoints = new HashMap<Integer, Checkpoint>();
     private String state;
-    private Map<Integer, LocalTime[]> riderTimes;
+    private Map<Integer, LocalTime[]> riderTimes = new HashMap<Integer, LocalTime[]>();
     private ArrayList<Integer> riderPositions;
     private static ArrayList<Integer> usedCheckpointIds;
     
@@ -66,28 +67,24 @@ public class Stage {
         int id = 0;
 		boolean used = true;
 		while(used) {
-			id = (int)Math.floor(Math.random() *(1000 - 1000 + 1) + 1000);
-			for(int i=0; i<checkpoints.size(); i++) {
-				if(checkpoints.containsKey(id) == false) {
-					used = false;
-				}
-			}
-		}
-        this.checkpoints.put(id, new MountainCheckpoint(location, type, gradient, length));
+            id = (int)(Math.random() * 9000) + 1000;
+            if(!checkpoints.containsKey(id)) {
+                used = false;
+            }
+        }
+        this.checkpoints.put(id, new MountainCheckpoint(location, type, gradient, length, id));
         return id;
     }
     public int addSprintCheckpoint(double location) {
         int id = 0;
 		boolean used = true;
 		while(used) {
-			id = (int)Math.floor(Math.random() *(1000 - 1000 + 1) + 1000);
-			for(int i=0; i<checkpoints.size(); i++) {
-				if(checkpoints.containsKey(id) == false) {
-					used = false;
-				}
-			}
-		}
-        this.checkpoints.put(id, new SprintCheckpoint(location));
+            id = (int)(Math.random() * 9000) + 1000;
+            if(!checkpoints.containsKey(id)) {
+                used = false;
+            }
+        }
+        this.checkpoints.put(id, new SprintCheckpoint(location, id));
         return id;
     }
     public static Stage findCheckpointsStage(int checkpointId) {

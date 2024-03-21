@@ -1,12 +1,13 @@
 package cycling;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 public class Team {
     private int id;
     private String name;
     private String description;
-    private static Map<Integer, Team> teams;
+    private static Map<Integer, Team> teams = new HashMap<Integer, Team>();
     private Map<Integer, Rider> riders;
     private static ArrayList<Integer> usedRiderIds;
 
@@ -17,13 +18,11 @@ public class Team {
         int id = 0;
 		boolean used = true;
 		while(used) {
-			id = (int)Math.floor(Math.random() *(1000 - 1000 + 1) + 1000);
-			for(int i=0; i<teams.size(); i++) {
-				if(teams.containsKey(id) == false) {
-					used = false;
-				}
-			}
-		}
+            id = (int)(Math.random() * 9000) + 1000;
+            if(!teams.containsKey(id)) {
+                used = false;
+            }
+        }
         this.id = id;
         this.name = name;
         this.description = description;
@@ -52,13 +51,11 @@ public class Team {
         int id = 0;
 		boolean used = true;
 		while(used) {
-			id = (int)Math.floor(Math.random() *(1000 - 1000 + 1) + 1000);
-			for(int i=0; i<=riders.size()-1; i++) {
-				if(riders.containsKey(id) == false) {
-					used = false;
-				}
-			}
-		}
+            id = (int)(Math.random() * 9000) + 1000;
+            if(!riders.containsKey(id)) {
+                used = false;
+            }
+        }
         this.riders.put(id, new Rider(name, yearOfBirth, id, this));
         return id;
     }

@@ -2,6 +2,7 @@ package cycling;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 public class Race {
@@ -15,8 +16,8 @@ public class Race {
     private String name;
     private String description;
     private double length;
-    private static Map<Integer, Race> races;
-    private Map<Integer, Stage> stages;
+    private static Map<Integer, Race> races = new HashMap<Integer, Race>();
+    private Map<Integer, Stage> stages = new HashMap<Integer, Stage>();
     private static ArrayList<Integer> usedStageIds;
 
     public Race() {
@@ -26,13 +27,11 @@ public class Race {
         int id = 0;
 		boolean used = true;
 		while(used) {
-			id = (int)Math.floor(Math.random() *(1000 - 1000 + 1) + 1000);
-			for(int i=0; i<races.size(); i++) {
-				if(races.containsKey(id) == false) {
-					used = false;
-				}
-			}
-		}
+            id = (int)(Math.random() * 9000) + 1000;
+            if(!races.containsKey(id)) {
+                used = false;
+            }
+        }
 
         this.name = name;
         this.description = description;
@@ -71,13 +70,11 @@ public class Race {
         int id = 0;
 		boolean used = true;
 		while(used) {
-			id = (int)Math.floor(Math.random() *(1000 - 1000 + 1) + 1000);
-			for(int i=0; i<stages.size()-1; i++) {
-				if(stages.containsKey(id) == false) {
-					used = false;
-				}
-			}
-		}
+            id = (int)(Math.random() * 9000) + 1000;
+            if(!stages.containsKey(id)) {
+                used = false;
+            }
+        }
         this.stages.put(id, new Stage(name, description, length, starTime, type, id, this));
         usedStageIds.add(id);
         return id;
