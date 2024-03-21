@@ -6,9 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Race {
-    private int[][] point_leaderboard;
     private int id;
-    private static int[][] mountainCheckpointValues;
     private ArrayList<Rider> riders;
     private int[] generalClassification;
     private int[] sprinterClassification;
@@ -100,6 +98,15 @@ public class Race {
     }
     public static Race findRace(int raceId) {
         return races.get(raceId);
+    }
+    public static void removeName(String name) {
+        ArrayList<Race> raceList = new ArrayList<Race>(getRaces().values());
+        for(int i=0; i<raceList.size(); i++) {
+            if(raceList.get(i).getName().equals(name)) {
+                races.remove(raceList.get(i).getId());
+            }
+        }
+        
     }
 
     //Any formatted string containing the race ID, name, description, the number of stages, and the total length (i.e., the sum of all stages' length).

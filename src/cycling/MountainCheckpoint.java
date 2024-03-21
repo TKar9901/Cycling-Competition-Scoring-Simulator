@@ -21,4 +21,7 @@ public class MountainCheckpoint extends Checkpoint{
     public int getId() {
         return this.id;
     }
+    public CheckpointType getType() {
+        return this.type;
+    }
 }

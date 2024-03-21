@@ -1,13 +1,20 @@
 package cycling;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.math.*;
 import java.time.Duration;
 import java.lang.Double;
+import java.io.Serializable;;
 
 /**
  * BadCyclingPortal is a minimally compiling, but non-functioning implementor
@@ -420,11 +427,11 @@ public class CyclingPortalImpl implements CyclingPortal {
 		return Race.findStage(stageId).getRiderTimes().get(riderId);
 	}
 
-	//TODO: Do this one together, I'm not sure best way to go about it
+	//I really am not sure if this works properly lol
 	@Override
 	public LocalTime getRiderAdjustedElapsedTimeInStage(int stageId, int riderId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+		Map<Integer, LocalTime> adjustedTimes = Race.findStage(stageId).adjustTimes(0);
+		return adjustedTimes.get(riderId);
 	}
 
 	@Override
@@ -438,17 +445,17 @@ public class CyclingPortalImpl implements CyclingPortal {
 		mapToInt(Integer::intValue).toArray();
 	}
 
-	//Do this once done getRiderAdjustedElapsedTimeInStage
+	//Again may or may not work
 	@Override
 	public LocalTime[] getRankedAdjustedElapsedTimesInStage(int stageId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+		Map<Integer, LocalTime> adjustedTimes = Race.findStage(stageId).adjustTimes(0);
+		return adjustedTimes.values().toArray(new LocalTime[0]);
 	}
 
+	//May need help with this one not sure how to go about it
 	@Override
 	public int[] getRidersPointsInStage(int stageId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+		
 	}
 
 	@Override
@@ -457,6 +464,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 		return null;
 	}
 
+	//Unless I'm dense there isn't anything stored in this so I don't get what it's meant to do
 	@Override
 	public void eraseCyclingPortal() {
 		// TODO Auto-generated method stub
@@ -465,20 +473,21 @@ public class CyclingPortalImpl implements CyclingPortal {
 
 	@Override
 	public void saveCyclingPortal(String filename) throws IOException {
-		// TODO Auto-generated method stub
-
+		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filename)); 
+		out.writeObject(this);
+		out.close();
 	}
 
+	//Have 0 clue to do what this is asking
 	@Override
 	public void loadCyclingPortal(String filename) throws IOException, ClassNotFoundException {
-		// TODO Auto-generated method stub
-
+		ObjectInputStream in = new ObjectInputStream(new FileInputStream(filename));
+		CyclingPortalImpl portalImpl = (CyclingPortalImpl) in.readObject();
 	}
 
 	@Override
 	public void removeRaceByName(String name) throws NameNotRecognisedException {
-		// TODO Auto-generated method stub
-
+		Race.removeName(name);
 	}
 
 	@Override

@@ -6,6 +6,7 @@ public class SprintCheckpoint extends Checkpoint{
     private int[][] timeLog;
     private double location;
     private int id;
+    private CheckpointType type;
 
     public SprintCheckpoint(double location, int id) {
         this.id = id;
@@ -13,5 +14,8 @@ public class SprintCheckpoint extends Checkpoint{
     }
     public int getId() {
         return this.id;
+    }
+    public CheckpointType getType() {
+        return this.type;
     }
 }
