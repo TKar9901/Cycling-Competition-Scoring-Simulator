@@ -23,7 +23,6 @@ public class CyclingPortalTestApp {
 	public static void main(String[] args) {
 		System.out.println("The system compiled and started the execution...");
 
-		//TODO replace BadMiniCyclingPortalImpl by CyclingPortalImpl
 		MiniCyclingPortal portal1 = new CyclingPortalImpl();
 		MiniCyclingPortal portal2 = new CyclingPortalImpl();
 

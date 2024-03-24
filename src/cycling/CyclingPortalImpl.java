@@ -16,6 +16,17 @@ import java.time.Duration;
 import java.lang.Double;
 import java.io.Serializable;;
 
+/*TODO
+ * Replace all functions with new map storage system - Jake
+ * UML Diagram - Tamanna
+ * Java Doc Comments - Jake
+ * Development Log - Jake
+ * Serilization functions - Wait
+ * General Classification Functions - Wait
+ * Writing more basic tests - Tamanna
+ * If time doing the mountain points and sprint points - Wait
+ */
+
 /**
  * BadCyclingPortal is a minimally compiling, but non-functioning implementor
  * of the CyclingPortal interface.
@@ -26,12 +37,28 @@ import java.io.Serializable;;
  */
 public class CyclingPortalImpl implements CyclingPortal {
 
+	private Map<Integer, Race> races = new HashMap<Integer, Race>();
+	private Map<Integer, Team> teams = new HashMap<Integer, Team>();
+	private ArrayList<Integer> usedStageIds = new ArrayList<Integer>();
+	private ArrayList<Integer> usedCheckpointIds = new ArrayList<Integer>();
+	private ArrayList<Integer> usedRiderIds = new ArrayList<Integer>();
+
+	//Empty constructor
+	public CyclingPortalImpl() {
+
+	}
+
+	//Loading in constructor
+	public CyclingPortalImpl(Map races, Map teams, ArrayList usedStageIds, ArrayList usedCheckpointIds) {
+
+	}
+
 	@Override
 	public int[] getRaceIds() {
-		if(Race.getRaces().size() < 1) {
+		if(races.size() < 1) {
 			return new int[] {};
 		} else {
-			return Race.getRaceIds();
+			return races.keySet().stream().mapToInt(Integer::intValue).toArray();
 		}
 		
 	}
@@ -42,20 +69,22 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(name==null || name=="" || name.length()>20 || name.contains(" ")){ //TODO: FIND CHARACTER LIMIT FOR RACE NAME??
 			throw new InvalidNameException("You have entered an incorrectly formatted race name, ensure it is a string of characters with no spaces.");
 		}
-		for(Race r: Race.getRaces().values()) {
+		for(Race r: races.values()) {
 			if(r.getName() == name) {
 				throw new IllegalNameException("You have entered a name that is already in use, ensure you are using unique name per race.");
 			}
 		}
 
-		Race newRace = new Race(name, description);
-		return newRace.getId();
+		Race newRace = new Race(name, description, races);
+		int id = newRace.getId();
+		races.put(id, newRace);
+		return id;
 	}
 
 	@Override
 	public String viewRaceDetails(int raceId) throws IDNotRecognisedException {
 		boolean found = false;
-		for(int id: Race.getRaceIds()) {
+		for(int id: getRaceIds()) {
 			if(raceId == id) {
 				found = true;
 			}
@@ -64,13 +93,13 @@ public class CyclingPortalImpl implements CyclingPortal {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined race.");
 		}
 
-		return Race.findRace(raceId).toString();
+		return races.get(raceId).toString();
 	}
 
 	@Override
 	public void removeRaceById(int raceId) throws IDNotRecognisedException {
 		boolean found = false;
-		for(int id: Race.getRaceIds()) {
+		for(int id: getRaceIds()) {
 			if(raceId == id) {
 				found = true;
 			}
@@ -78,14 +107,13 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(found == false) {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined race.");
 		}
-
-		Race.getRaces().remove(raceId);
+		races.remove(raceId);
 	}
 
 	@Override
 	public int getNumberOfStages(int raceId) throws IDNotRecognisedException {
 		boolean found = false;
-		for(int id: Race.getRaceIds()) {
+		for(int id: getRaceIds()) {
 			if(raceId == id) {
 				found = true;
 			}
@@ -94,18 +122,18 @@ public class CyclingPortalImpl implements CyclingPortal {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined race.");
 		}
 		
-		return Race.findRace(raceId).getStages().size();
+		return races.get(raceId).getStages().size();
 	}
 
 	@Override
 	public int addStageToRace(int raceId, String stageName, String description, double length, LocalDateTime startTime, StageType type) 
 	throws IDNotRecognisedException, IllegalNameException, InvalidNameException, InvalidLengthException {
 		boolean found = false;
-		for(Race r: Race.getRaces().values()) {
-			if(raceId == r.getId()) {
+		for(int r: getRaceIds()) {
+			if(raceId == r) {
 				found = true;
 			}
-			for(Stage s: r.getStages().values()) {
+			for(Stage s: races.get(r).getStages().values()) {
 				if(s.getName() == stageName) {
 					throw new IllegalNameException("You have entered a name that is already in use, ensure you are using unique name per stage.");
 				}
@@ -121,13 +149,15 @@ public class CyclingPortalImpl implements CyclingPortal {
 			throw new InvalidLengthException("You have entered an incorrectly formatted stage length, ensure it is a decimal greater than 5km.");
 		}
 
-		return Race.findRace(raceId).addStage(stageName, description, length, startTime, type);
+		int id = races.get(raceId).addStage(stageName, description, length, startTime, type);
+		usedStageIds.add(id);
+		return id;
 	}
 
 	@Override
 	public int[] getRaceStages(int raceId) throws IDNotRecognisedException {
 		boolean found = false;
-		for(int id: Race.getRaceIds()) {
+		for(int id: getRaceIds()) {
 			if(raceId == id) {
 				found = true;
 			}
@@ -136,14 +166,14 @@ public class CyclingPortalImpl implements CyclingPortal {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined race.");
 		}
 		
-		return Race.getRaces().get(raceId).getStages().keySet()
+		return races.get(raceId).getStages().keySet()
 		.stream().mapToInt(Integer::intValue).toArray();
 	}
 
 	@Override
 	public double getStageLength(int stageId) throws IDNotRecognisedException {
 		boolean found = false;
-		for(int id: Race.getStageIds()) {
+		for(int id: usedStageIds) {
 			if(stageId == id) {
 				found = true;
 			}
@@ -151,21 +181,14 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(found == false) {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined stage.");
 		}
-
-		int[] raceIds = getRaceIds();
-		double length = 0;
-		for(int i=0; i<raceIds.length; i++) {
-			if(Race.findStagesRace(stageId).getStages().containsKey(stageId)) {
-				length = Race.findStage(stageId).getLength();
-			}
-		}
+		double length = Race.findStage(stageId, races).getLength();
 		return length;
 	}
 
 	@Override
 	public void removeStageById(int stageId) throws IDNotRecognisedException {
 		boolean found = false;
-		for(int id: Race.getStageIds()) {
+		for(int id: usedStageIds) {
 			if(stageId == id) {
 				found = true;
 			}
@@ -174,7 +197,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined stage.");
 		}
 
-		Race.findStage(stageId).getRace().getStages().remove(stageId);
+		Race.findStagesRace(stageId, races).getStages().remove(stageId);
 	}
 
 	@Override
@@ -182,7 +205,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 			Double length) throws IDNotRecognisedException, InvalidLocationException, InvalidStageStateException,
 			InvalidStageTypeException {
 		boolean found = false;
-		for(int id: Race.getStageIds()) {
+		for(int id: usedStageIds) {
 			if(stageId == id) {
 				found = true;
 			}
@@ -190,24 +213,24 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(found == false) {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined stage.");
 		}
-		if(location<0 || location>Race.findStage(stageId).getLength()) {
+		if(location<0 || location>Race.findStage(stageId, races).getLength()) {
 			throw new InvalidLocationException("You have entered an incorrectly formatted location, ensure it is between 0 and length of the chosen stage.");
 		}
-		if(Race.findStage(stageId).getState() != "in preparation") {
+		if(Race.findStage(stageId, races).getState() != "in preparation") {
 			throw new InvalidStageStateException("You can no longer add details to this stage as preparation phase has already been concluded.");
 		}
-		if(Race.findStage(stageId).getType() == StageType.TT) {
+		if(Race.findStage(stageId, races).getType() == StageType.TT) {
 			throw new InvalidStageTypeException("You cannot add this checkpoint type to a time trial stage, ensure you have entered the intended stage ID.");
 		}
 		
-		return Race.findStage(stageId).addMountainCheckpoint(location, type, averageGradient, length);
+		return Race.findStage(stageId, races).addMountainCheckpoint(location, type, averageGradient, length);
 	}
 
 	@Override
 	public int addIntermediateSprintToStage(int stageId, double location) throws IDNotRecognisedException,
 			InvalidLocationException, InvalidStageStateException, InvalidStageTypeException {
 		boolean found = false;
-		for(int id: Race.getStageIds()) {
+		for(int id: usedStageIds) {
 			if(stageId == id) {
 				found = true;
 			}
@@ -215,23 +238,24 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(found == false) {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined stage.");
 		}
-		if(location<0 || location>Race.findStage(stageId).getLength()) {
+		if(location<0 || location>Race.findStage(stageId, races).getLength()) {
 			throw new InvalidLocationException("You have entered an incorrectly formatted location, ensure it is between 0 and length of the chosen stage.");
 		}
-		if(Race.findStage(stageId).getState() != "in preparation") {
+		if(Race.findStage(stageId, races).getState() != "in preparation") {
 			throw new InvalidStageStateException("You can no longer change the details of this stage as preparation phase has already been concluded.");
 		}
-		if(Race.findStage(stageId).getType() == StageType.TT) {
+		if(Race.findStage(stageId, races).getType() == StageType.TT) {
 			throw new InvalidStageTypeException("You cannot add this checkpoint type to a time trial stage, ensure you have entered the intended stage ID.");
 		}
-		
-		return Race.findStage(stageId).addSprintCheckpoint(location);
+		int id = Race.findStage(stageId, races).addSprintCheckpoint(location);
+		usedCheckpointIds.add(id);
+		return id;
 	}
 
 	@Override
 	public void removeCheckpoint(int checkpointId) throws IDNotRecognisedException, InvalidStageStateException {
 		boolean found = false;
-		for(int id: Stage.getCheckpointIds()) {
+		for(int id: usedCheckpointIds) {
 			if(checkpointId == id) {
 				found = true;
 			}
@@ -239,17 +263,17 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(found == false) {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined checkpoint.");
 		}
-		if(Stage.findCheckpointsStage(checkpointId).getState() != "in preparation") {
+		if(Stage.findCheckpointsStage(checkpointId, races, usedStageIds).getState() != "in preparation") {
 			throw new InvalidStageStateException("You can no longer change the details of this stage as preparation phase has already been concluded.");
 		}
 		
-		Stage.findCheckpointsStage(checkpointId).getCheckpoints().remove(checkpointId);
+		Stage.findCheckpointsStage(checkpointId, races, usedStageIds).getCheckpoints().remove(checkpointId);
 	}
 
 	@Override
 	public void concludeStagePreparation(int stageId) throws IDNotRecognisedException, InvalidStageStateException {
 		boolean found = false;
-		for(int id: Race.getStageIds()) {
+		for(int id: usedStageIds) {
 			if(stageId == id) {
 				found = true;
 			}
@@ -257,17 +281,17 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(found == false) {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined stage.");
 		}
-		if(Race.findStage(stageId).getState() != "in preparation") {
+		if(Race.findStage(stageId, races).getState() != "in preparation") {
 			throw new InvalidStageStateException("You can no longer change the details of this stage as preparation phase has already been concluded.");
 		}
 		
-		Race.findStage(stageId).setState();
+		Race.findStage(stageId, races).setState();
 	}
 
 	@Override
 	public int[] getStageCheckpoints(int stageId) throws IDNotRecognisedException {
 		boolean found = false;
-		for(int id: Race.getStageIds()) {
+		for(int id: usedStageIds) {
 			if(stageId == id) {
 				found = true;
 			}
@@ -276,13 +300,13 @@ public class CyclingPortalImpl implements CyclingPortal {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined stage.");
 		}
 		
-		return Race.findStage(stageId).getCheckpoints().keySet().stream().
+		return Race.findStage(stageId, races).getCheckpoints().keySet().stream().
 		mapToInt(Integer:: intValue).toArray();
 	}
 
 	@Override
 	public int createTeam(String name, String description) throws IllegalNameException, InvalidNameException {
-		for(Team t: Team.getTeams().values()) {
+		for(Team t: teams.values()) {
 			if(t.getName() == name) {
 				throw new IllegalNameException("You have entered a name that is already in use, ensure you are using unique name per team.");
 			}
@@ -292,14 +316,16 @@ public class CyclingPortalImpl implements CyclingPortal {
 			throw new InvalidNameException("You have entered an incorrectly formatted team name, ensure it is a string of characters with no spaces.");
 		}
 		
-		Team newTeam = new Team(name, description);
-		return newTeam.getId();
+		Team newTeam = new Team(name, description, teams);
+		int id = newTeam.getId();
+		teams.put(id, newTeam);
+		return id;
 	}
 
 	@Override
 	public void removeTeam(int teamId) throws IDNotRecognisedException {
 		boolean found = false;
-		for(int id: Team.getTeamIds()) {
+		for(int id: getTeams()) {
 			if(teamId == id) {
 				found = true;
 			}
@@ -308,18 +334,18 @@ public class CyclingPortalImpl implements CyclingPortal {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined team.");
 		}
 		
-		Team.getTeams().remove(teamId);
+		teams.remove(teamId);
 	}
 
 	@Override
 	public int[] getTeams() {
-		return Team.getTeamIds();
+		return teams.keySet().stream().mapToInt(Integer::intValue).toArray();
 	}
 
 	@Override
 	public int[] getTeamRiders(int teamId) throws IDNotRecognisedException {
 		boolean found = false;
-		for(int id: Team.getTeamIds()) {
+		for(int id: getTeams()) {
 			if(teamId == id) {
 				found = true;
 			}
@@ -328,7 +354,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined team.");
 		}
 		
-		return Team.findTeam(teamId).getRiders().keySet()
+		return teams.get(teamId).getRiders().keySet()
 		.stream().mapToInt(Integer::intValue).toArray();
 	}
 
@@ -336,7 +362,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 	public int createRider(int teamId, String name, int yearOfBirth)
 			throws IDNotRecognisedException, IllegalArgumentException {
 		boolean found = false;
-		for(int id: Team.getTeamIds()) {
+		for(int id: getTeams()) {
 			if(teamId == id) {
 				found = true;
 			}
@@ -344,15 +370,16 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(found == false) {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined team.");
 		}
-
-		return Team.findTeam(teamId).addRider(name, yearOfBirth);
+		int id = teams.get(teamId).addRider(name, yearOfBirth);
+		usedRiderIds.add(id);
+		return id;
 	}
 
 	//TODO: Come back to final leaderboard issue to remove racers from that too
 	@Override
 	public void removeRider(int riderId) throws IDNotRecognisedException {
 		boolean found = false;
-		for(int id: Team.getRiderIds()) {
+		for(int id: usedRiderIds) {
 			if(riderId == id) {
 				found = true;
 			}
@@ -361,16 +388,19 @@ public class CyclingPortalImpl implements CyclingPortal {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined rider.");
 		}
 		
-		ArrayList<Integer> riderRaces = Team.findRider(riderId).getRacesEnrolled();
+		//Removes all of a riders scores in the stages they are inside
+		ArrayList<Integer> riderRaces = Team.findRider(riderId, teams).getRacesEnrolled();
 		for(int i=0; i<riderRaces.size(); i++) {
-			for(int j=0; j<Race.findRace(riderRaces.get(i)).getStages().size();j++) {
-				int currStageId = Race.getStageIds()[j];
-				Race.findStage(currStageId).getRiderTimes().remove(riderId);
+			for(int j=0; j<races.get((riderRaces.get(i))).getStages().size();j++) {
+				int[] currentRaceStages = races.get((riderRaces.get(i))).getStages().keySet().
+				stream().mapToInt(Integer::intValue).toArray();
+				int currStageId = races.get((riderRaces.get(i))).getStages().get(currentRaceStages[j]).getId();
+				Race.findStage(currStageId, races).getRiderTimes().remove(riderId);
 			}
 			
 		}
 		
-		Team.findRider(riderId).getTeam().getRiders().remove(riderId);
+		Team.findRider(riderId, teams).getTeam().getRiders().remove(riderId);
 	}
 	//JAKE
 	@Override
@@ -379,7 +409,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 			InvalidStageStateException {
 		boolean stageFound = false;
 		boolean riderFound = false;
-		for(int id: Race.getStageIds()) {
+		for(int id: usedStageIds) {
 			if(stageId == id) {
 				stageFound = true;
 			}
@@ -387,7 +417,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(stageFound == false) {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined stage.");
 		}
-		for(int id: Team.getRiderIds()) {
+		for(int id: usedRiderIds) {
 			if(riderId == id) {
 				riderFound = true;
 			}
@@ -395,10 +425,10 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(riderFound == false) {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined rider.");
 		}
-		if(Race.findStage(stageId).getState() == "in preparation") {
+		if(Race.findStage(stageId, races).getState() == "in preparation") {
 			throw new InvalidStageStateException("You cannot add results to this stage as preparation phase has not yet been concluded.");
 		}
-		if(Race.findStage(stageId).getRiderTimes().containsKey(riderId)) {
+		if(Race.findStage(stageId, races).getRiderTimes().containsKey(riderId)) {
 			throw new DuplicatedResultException("You have entered a riderID for which results have already been entered in this stage, ensure you are entering the correct stageID and riderID.");
 		}
 		boolean inOrder = true;
@@ -407,7 +437,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 				inOrder = false;
 			}
 		}
-		if(inOrder == false || checkpoints.length != Race.findStage(stageId).getCheckpoints().size()+2) {
+		if(inOrder == false || checkpoints.length != Race.findStage(stageId, races).getCheckpoints().size()+2) {
 			throw new InvalidCheckpointTimesException("You have entered an incorrectly formatted checkpoints list, ensure it contains the rider's times in order for each checkpoint as well as the start and finish time of the given stage.");
 		}
 		
@@ -415,40 +445,40 @@ public class CyclingPortalImpl implements CyclingPortal {
 		LocalTime midnight = LocalTime.parse("00:00:00");
 		Duration elapsedTime = Duration.between(checkpoints[0], checkpoints[checkpoints.length-1]);
 		checkpoints[checkpoints.length-1] = midnight.plus(elapsedTime);
-		Race.findStage(stageId).getRiderTimes().put(riderId, checkpoints);
+		Race.findStage(stageId, races).getRiderTimes().put(riderId, checkpoints);
 
 		//If the race hasnt already been added to a rider's races, add it
-		ArrayList<Integer> riderRaces = Team.findRider(riderId).getRacesEnrolled();
+		ArrayList<Integer> riderRaces = Team.findRider(riderId, teams).getRacesEnrolled();
 		for(int i=0; i<riderRaces.size();i++) {
-			if(riderRaces.get(i) == Race.findStage(stageId).getRace().getId()) {
+			if(riderRaces.get(i) == Race.findStage(stageId, races).getRace().getId()) {
 				break;
 			}
 			if(i==riderRaces.size()-1) {
-				Team.findRider(riderId).getRacesEnrolled().add(Race.findStage(stageId).getRace().getId());
+				Team.findRider(riderId, teams).getRacesEnrolled().add(Race.findStage(stageId, races).getRace().getId());
 			}
 		}
 
 		//Insert the rider id at the appropriate position on the stages leaderboard
-		int[] stagePositions = Race.findStage(stageId).getRiderPositions().stream().mapToInt(Integer::intValue).toArray();
-		Map<Integer, LocalTime[]> riderTimes = Race.findStage(stageId).getRiderTimes();
+		int[] stagePositions = Race.findStage(stageId, races).getRiderPositions().stream().mapToInt(Integer::intValue).toArray();
+		Map<Integer, LocalTime[]> riderTimes = Race.findStage(stageId, races).getRiderTimes();
 		for(int i=0; i<stagePositions.length; i++) {
 			LocalTime currentRacersFinish = riderTimes.get(stagePositions[i])[riderTimes.get(stagePositions[i]).length-1];
 			//In the case it is the first result place it in
 			if(stagePositions.length == 0) {
-				Race.findStage(stageId).getRiderPositions().add(riderId);
+				Race.findStage(stageId, races).getRiderPositions().add(riderId);
 				break;
 			}
 			//In the case it is faster than an index or the same speed place it before
 			else if(checkpoints[checkpoints.length-1].compareTo(currentRacersFinish)
 			==-1 || checkpoints[checkpoints.length-1].compareTo(currentRacersFinish)
 			==0) {
-				Race.findStage(stageId).getRiderPositions().add(i-1, riderId);
+				Race.findStage(stageId, races).getRiderPositions().add(i-1, riderId);
 				break;
 			}
 			//In the case it is the slowest time yet
 			else if(checkpoints[checkpoints.length-1].compareTo(riderTimes.get(stagePositions[stagePositions.length-1])[checkpoints.length-1])
 			==1) {
-				Race.findStage(stageId).getRiderPositions().add(riderId);
+				Race.findStage(stageId, races).getRiderPositions().add(riderId);
 			}
 				
 		}
@@ -460,15 +490,15 @@ public class CyclingPortalImpl implements CyclingPortal {
 	public LocalTime[] getRiderResultsInStage(int stageId, int riderId) throws IDNotRecognisedException {
 		boolean stageFound = false;
 		boolean riderFound = false;
-		for(int id: Race.getStageIds()) {
+		for(int id: usedStageIds) {
 			if(stageId == id) {
 				stageFound = true;
 			}
 		}
 		if(stageFound == false) {
-			throw new IDNotRecognisedException("You hzave entered an unrecognisable ID, ensure the ID requested matches a previously defined stage.");
+			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined stage.");
 		}
-		for(int id: Team.getRiderIds()) {
+		for(int id: usedRiderIds) {
 			if(riderId == id) {
 				riderFound = true;
 			}
@@ -477,7 +507,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined rider.");
 		}
 
-		return Race.findStage(stageId).getRiderTimes().get(riderId);
+		return Race.findStage(stageId, races).getRiderTimes().get(riderId);
 	}
 
 	//I really am not sure if this works properly lol
@@ -485,7 +515,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 	public LocalTime getRiderAdjustedElapsedTimeInStage(int stageId, int riderId) throws IDNotRecognisedException {
 		boolean stageFound = false;
 		boolean riderFound = false;
-		for(int id: Race.getStageIds()) {
+		for(int id: usedStageIds) {
 			if(stageId == id) {
 				stageFound = true;
 			}
@@ -493,7 +523,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(stageFound == false) {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined stage.");
 		}
-		for(int id: Team.getRiderIds()) {
+		for(int id: usedRiderIds) {
 			if(riderId == id) {
 				riderFound = true;
 			}
@@ -502,7 +532,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined rider.");
 		}
 		
-		Map<Integer, LocalTime> adjustedTimes = Race.findStage(stageId).adjustTimes(0);
+		Map<Integer, LocalTime> adjustedTimes = Race.findStage(stageId, races).adjustTimes(0);
 		return adjustedTimes.get(riderId);
 	}
 
@@ -510,7 +540,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 	public void deleteRiderResultsInStage(int stageId, int riderId) throws IDNotRecognisedException {
 		boolean stageFound = false;
 		boolean riderFound = false;
-		for(int id: Race.getStageIds()) {
+		for(int id: usedStageIds) {
 			if(stageId == id) {
 				stageFound = true;
 			}
@@ -518,7 +548,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(stageFound == false) {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined stage.");
 		}
-		for(int id: Team.getRiderIds()) {
+		for(int id: usedRiderIds) {
 			if(riderId == id) {
 				riderFound = true;
 			}
@@ -527,13 +557,13 @@ public class CyclingPortalImpl implements CyclingPortal {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined rider.");
 		}
 		
-		Race.findStage(stageId).getRiderTimes().remove(riderId);
+		Race.findStage(stageId, races).getRiderTimes().remove(riderId);
 	}
 
 	@Override
 	public int[] getRidersRankInStage(int stageId) throws IDNotRecognisedException {
 		boolean found = false;
-		for(int id: Race.getStageIds()) {
+		for(int id: usedStageIds) {
 			if(stageId == id) {
 				found = true;
 			}
@@ -542,7 +572,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined stage.");
 		}
 		
-		return Race.findStage(stageId).getRiderPositions().stream().
+		return Race.findStage(stageId, races).getRiderPositions().stream().
 		mapToInt(Integer::intValue).toArray();
 	}
 
@@ -550,7 +580,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 	@Override
 	public LocalTime[] getRankedAdjustedElapsedTimesInStage(int stageId) throws IDNotRecognisedException {
 		boolean found = false;
-		for(int id: Race.getStageIds()) {
+		for(int id: usedStageIds) {
 			if(stageId == id) {
 				found = true;
 			}
@@ -559,7 +589,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined stage.");
 		}
 		
-		Map<Integer, LocalTime> adjustedTimes = Race.findStage(stageId).adjustTimes(0);
+		Map<Integer, LocalTime> adjustedTimes = Race.findStage(stageId, races).adjustTimes(0);
 		return adjustedTimes.values().toArray(new LocalTime[0]);
 	}
 
@@ -567,7 +597,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 	@Override
 	public int[] getRidersPointsInStage(int stageId) throws IDNotRecognisedException {
 		boolean found = false;
-		for(int id: Race.getStageIds()) {
+		for(int id: usedStageIds) {
 			if(stageId == id) {
 				found = true;
 			}
@@ -583,7 +613,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 	@Override
 	public int[] getRidersMountainPointsInStage(int stageId) throws IDNotRecognisedException {
 		boolean found = false;
-		for(int id: Race.getStageIds()) {
+		for(int id: usedStageIds) {
 			if(stageId == id) {
 				found = true;
 			}
@@ -614,14 +644,19 @@ public class CyclingPortalImpl implements CyclingPortal {
 	@Override
 	public void loadCyclingPortal(String filename) throws IOException, ClassNotFoundException {
 		ObjectInputStream in = new ObjectInputStream(new FileInputStream(filename));
-		CyclingPortalImpl portalImpl = (CyclingPortalImpl) in.readObject();
+		CyclingPortalImpl loadedImpl = (CyclingPortalImpl) in.readObject();
+		this.races = loadedImpl.races;
+		this.teams = loadedImpl.teams;
+		this.usedCheckpointIds = loadedImpl.usedCheckpointIds;
+		this.usedRiderIds = loadedImpl.usedRiderIds;
+		this.usedStageIds = loadedImpl.usedStageIds;
 		in.close();
 	}
 
 	@Override
 	public void removeRaceByName(String name) throws NameNotRecognisedException {
 		boolean found = false;
-		for(Race r: Race.getRaces().values()) {
+		for(Race r: races.values()) {
 			if(name == r.getName()) {
 				found = true;
 			}
@@ -629,13 +664,18 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(found == false) {
 			throw new NameNotRecognisedException("You have entered an unrecognisable name, ensure the name requested matches a previously defined race.");
 		}
-		Race.removeName(name);
+		ArrayList<Race> raceList = new ArrayList<Race>(races.values());
+        for(int i=0; i<raceList.size(); i++) {
+            if(raceList.get(i).getName().equals(name)) {
+                races.remove(raceList.get(i).getId());
+            }
+        }
 	}
 
 	@Override
 	public LocalTime[] getGeneralClassificationTimesInRace(int raceId) throws IDNotRecognisedException {
 		boolean found = false;
-		for(int id: Race.getRaceIds()) {
+		for(int id: getRaceIds()) {
 			if(raceId == id) {
 				found = true;
 			}
@@ -651,7 +691,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 	@Override
 	public int[] getRidersPointsInRace(int raceId) throws IDNotRecognisedException {
 		boolean found = false;
-		for(int id: Race.getRaceIds()) {
+		for(int id: getRaceIds()) {
 			if(raceId == id) {
 				found = true;
 			}
@@ -667,7 +707,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 	@Override
 	public int[] getRidersMountainPointsInRace(int raceId) throws IDNotRecognisedException {
 		boolean found = false;
-		for(int id: Race.getRaceIds()) {
+		for(int id: getRaceIds()) {
 			if(raceId == id) {
 				found = true;
 			}
@@ -683,7 +723,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 	@Override
 	public int[] getRidersGeneralClassificationRank(int raceId) throws IDNotRecognisedException {
 		boolean found = false;
-		for(int id: Race.getRaceIds()) {
+		for(int id: getRaceIds()) {
 			if(raceId == id) {
 				found = true;
 			}
@@ -699,7 +739,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 	@Override
 	public int[] getRidersPointClassificationRank(int raceId) throws IDNotRecognisedException {
 		boolean found = false;
-		for(int id: Race.getRaceIds()) {
+		for(int id: getRaceIds()) {
 			if(raceId == id) {
 				found = true;
 			}
@@ -715,7 +755,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 	@Override
 	public int[] getRidersMountainPointClassificationRank(int raceId) throws IDNotRecognisedException {
 		boolean found = false;
-		for(int id: Race.getRaceIds()) {
+		for(int id: getRaceIds()) {
 			if(raceId == id) {
 				found = true;
 			}

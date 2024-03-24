@@ -21,7 +21,6 @@ public class Stage {
     private ArrayList<Integer> riderPositions = new ArrayList<Integer>();
     //Integer will be the position in checkpoints it is at
     private ArrayList<Integer> sprintCheckpointPositions = new ArrayList<Integer>();
-    private static ArrayList<Integer> usedCheckpointIds = new ArrayList<Integer>();
     private static final int[] FLATSTAGEPOINTS = {50,30,20,18,16,14,12,10,8,7,6,5,4,3,2};
     private static final int[] MEDIUMSTAGEPOINTS = {30,25,22,19,17,15,13,11,9,7,6,5,4,3,2};
     private static final int[] HIGHMOUNTAINPOINTS = {20,17,15,13,11,10,9,8,7,6,5,4,3,2,1};
@@ -73,6 +72,7 @@ public class Stage {
         LocalTime nextTime = riderTimes.get(riderPositions.get(index+1))[riderTimes.size()-1];
         if(adjustedTimes.isEmpty()) {
             adjustedTimes.put(riderPositions.get(riderPositions.get(0)), currTime);
+            return adjustTimes(index+1);
         }
         else if(currTime.plusSeconds(1).isAfter(nextTime)) {
             adjustedTimes.put(riderPositions.get(riderPositions.get(index+1)), currTime);
@@ -102,9 +102,6 @@ public class Stage {
     }
     public void setState() {
         this.state = "waiting for results";
-    }
-    public static int[] getCheckpointIds() {
-        return usedCheckpointIds.stream().mapToInt(Integer::intValue).toArray();
     }
     public StageType getType() {
         return this.type;
@@ -137,23 +134,23 @@ public class Stage {
             }
         }
         this.checkpoints.put(id, new SprintCheckpoint(location, id));
-        this.sprintCheckpointPositions.add(usedCheckpointIds.size()-1);
+        this.sprintCheckpointPositions.add(this.getCheckpoints().size()-1);
         return id;
     }
-    public static Stage findCheckpointsStage(int checkpointId) {
+    public static Stage findCheckpointsStage(int checkpointId, Map<Integer, Race> races, ArrayList<Integer> stageIds) {
         Stage stage = new Stage();
-        int[] raceIds = Race.getRaceIds();
-        int[] stageIds = Race.getStageIds();
-        for(int i=0; i<raceIds.length; i++) {
-            for(int j=0; j<Race.getRaces().get(raceIds[i]).getStages().size(); i++) {
-                if(Race.getRaces().get(raceIds[i]).getStages()
-                .get(stageIds[j]).getCheckpoints().containsKey(checkpointId)) {
-                    stage = Race.getRaces().get(raceIds[i]).getStages().get(stageIds[j]);
+        int[] raceIds = races.keySet().stream().mapToInt(Integer::intValue).toArray();
+        for(int i=0; i<races.size(); i++) {
+            for(int j=0; j<races.get(raceIds[i]).getStages().size(); i++) {
+                if(races.get(raceIds[i]).getStages()
+                .get(stageIds.get(j)).getCheckpoints().containsKey(checkpointId)) {
+                    stage = races.get(raceIds[i]).getStages().get(stageIds.get(j));
                 }
             }
         }
         return stage;
     }
+
     public Map<Integer, LocalTime[]> getRiderTimes() {
         return this.riderTimes;
     }
