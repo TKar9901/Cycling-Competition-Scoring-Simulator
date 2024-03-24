@@ -63,8 +63,8 @@ public class Stage {
             }
             
         }
-        //Points for any checkpoints that are intermediate sprints, need to look at all racers times for this checkpoint
-
+        //TODO: Points for any checkpoints that are intermediate sprints, need to look at all racers times for this checkpoint
+        return null;
     }
 
     //Recursively determine times

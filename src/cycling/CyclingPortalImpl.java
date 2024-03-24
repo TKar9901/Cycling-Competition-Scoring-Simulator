@@ -377,6 +377,40 @@ public class CyclingPortalImpl implements CyclingPortal {
 	public void registerRiderResultsInStage(int stageId, int riderId, LocalTime... checkpoints)
 			throws IDNotRecognisedException, DuplicatedResultException, InvalidCheckpointTimesException,
 			InvalidStageStateException {
+		boolean stageFound = false;
+		boolean riderFound = false;
+		for(int id: Race.getStageIds()) {
+			if(stageId == id) {
+				stageFound = true;
+			}
+		}
+		if(stageFound == false) {
+			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined stage.");
+		}
+		for(int id: Team.getRiderIds()) {
+			if(riderId == id) {
+				riderFound = true;
+			}
+		}
+		if(riderFound == false) {
+			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined rider.");
+		}
+		if(Race.findStage(stageId).getState() == "in preparation") {
+			throw new InvalidStageStateException("You cannot add results to this stage as preparation phase has not yet been concluded.");
+		}
+		if(Race.findStage(stageId).getRiderTimes().containsKey(riderId)) {
+			throw new DuplicatedResultException("You have entered a riderID for which results have already been entered in this stage, ensure you are entering the correct stageID and riderID.");
+		}
+		boolean inOrder = true;
+		for(int i=0; i<checkpoints.length; ++i) {
+			if(checkpoints[i].compareTo(checkpoints[i+1])>0) {
+				inOrder = false;
+			}
+		}
+		if(inOrder == false || checkpoints.length != Race.findStage(stageId).getCheckpoints().size()+2) {
+			throw new InvalidCheckpointTimesException("You have entered an incorrectly formatted checkpoints list, ensure it contains the rider's times in order for each checkpoint as well as the start and finish time of the given stage.");
+		}
+		
 		//Calculate the elapsed time for that stage and convert it into the format wanted and add it to the stage's results
 		LocalTime midnight = LocalTime.parse("00:00:00");
 		Duration elapsedTime = Duration.between(checkpoints[0], checkpoints[checkpoints.length-1]);
@@ -421,26 +455,93 @@ public class CyclingPortalImpl implements CyclingPortal {
 		
 	}
 	
-
+	// should i bother adding other checks if he didnt declare them so is it fair to assume he won't test for them?.. applies to all functions onwards
 	@Override
 	public LocalTime[] getRiderResultsInStage(int stageId, int riderId) throws IDNotRecognisedException {
+		boolean stageFound = false;
+		boolean riderFound = false;
+		for(int id: Race.getStageIds()) {
+			if(stageId == id) {
+				stageFound = true;
+			}
+		}
+		if(stageFound == false) {
+			throw new IDNotRecognisedException("You hzave entered an unrecognisable ID, ensure the ID requested matches a previously defined stage.");
+		}
+		for(int id: Team.getRiderIds()) {
+			if(riderId == id) {
+				riderFound = true;
+			}
+		}
+		if(riderFound == false) {
+			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined rider.");
+		}
+
 		return Race.findStage(stageId).getRiderTimes().get(riderId);
 	}
 
 	//I really am not sure if this works properly lol
 	@Override
 	public LocalTime getRiderAdjustedElapsedTimeInStage(int stageId, int riderId) throws IDNotRecognisedException {
+		boolean stageFound = false;
+		boolean riderFound = false;
+		for(int id: Race.getStageIds()) {
+			if(stageId == id) {
+				stageFound = true;
+			}
+		}
+		if(stageFound == false) {
+			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined stage.");
+		}
+		for(int id: Team.getRiderIds()) {
+			if(riderId == id) {
+				riderFound = true;
+			}
+		}
+		if(riderFound == false) {
+			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined rider.");
+		}
+		
 		Map<Integer, LocalTime> adjustedTimes = Race.findStage(stageId).adjustTimes(0);
 		return adjustedTimes.get(riderId);
 	}
 
 	@Override
 	public void deleteRiderResultsInStage(int stageId, int riderId) throws IDNotRecognisedException {
+		boolean stageFound = false;
+		boolean riderFound = false;
+		for(int id: Race.getStageIds()) {
+			if(stageId == id) {
+				stageFound = true;
+			}
+		}
+		if(stageFound == false) {
+			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined stage.");
+		}
+		for(int id: Team.getRiderIds()) {
+			if(riderId == id) {
+				riderFound = true;
+			}
+		}
+		if(riderFound == false) {
+			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined rider.");
+		}
+		
 		Race.findStage(stageId).getRiderTimes().remove(riderId);
 	}
 
 	@Override
 	public int[] getRidersRankInStage(int stageId) throws IDNotRecognisedException {
+		boolean found = false;
+		for(int id: Race.getStageIds()) {
+			if(stageId == id) {
+				found = true;
+			}
+		}
+		if(found == false) {
+			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined stage.");
+		}
+		
 		return Race.findStage(stageId).getRiderPositions().stream().
 		mapToInt(Integer::intValue).toArray();
 	}
@@ -448,6 +549,16 @@ public class CyclingPortalImpl implements CyclingPortal {
 	//Again may or may not work
 	@Override
 	public LocalTime[] getRankedAdjustedElapsedTimesInStage(int stageId) throws IDNotRecognisedException {
+		boolean found = false;
+		for(int id: Race.getStageIds()) {
+			if(stageId == id) {
+				found = true;
+			}
+		}
+		if(found == false) {
+			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined stage.");
+		}
+		
 		Map<Integer, LocalTime> adjustedTimes = Race.findStage(stageId).adjustTimes(0);
 		return adjustedTimes.values().toArray(new LocalTime[0]);
 	}
@@ -455,11 +566,32 @@ public class CyclingPortalImpl implements CyclingPortal {
 	//May need help with this one not sure how to go about it
 	@Override
 	public int[] getRidersPointsInStage(int stageId) throws IDNotRecognisedException {
+		boolean found = false;
+		for(int id: Race.getStageIds()) {
+			if(stageId == id) {
+				found = true;
+			}
+		}
+		if(found == false) {
+			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined stage.");
+		}
 		
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
 	public int[] getRidersMountainPointsInStage(int stageId) throws IDNotRecognisedException {
+		boolean found = false;
+		for(int id: Race.getStageIds()) {
+			if(stageId == id) {
+				found = true;
+			}
+		}
+		if(found == false) {
+			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined stage.");
+		}
+		
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -483,45 +615,115 @@ public class CyclingPortalImpl implements CyclingPortal {
 	public void loadCyclingPortal(String filename) throws IOException, ClassNotFoundException {
 		ObjectInputStream in = new ObjectInputStream(new FileInputStream(filename));
 		CyclingPortalImpl portalImpl = (CyclingPortalImpl) in.readObject();
+		in.close();
 	}
 
 	@Override
 	public void removeRaceByName(String name) throws NameNotRecognisedException {
+		boolean found = false;
+		for(Race r: Race.getRaces().values()) {
+			if(name == r.getName()) {
+				found = true;
+			}
+		}
+		if(found == false) {
+			throw new NameNotRecognisedException("You have entered an unrecognisable name, ensure the name requested matches a previously defined race.");
+		}
 		Race.removeName(name);
 	}
 
 	@Override
 	public LocalTime[] getGeneralClassificationTimesInRace(int raceId) throws IDNotRecognisedException {
+		boolean found = false;
+		for(int id: Race.getRaceIds()) {
+			if(raceId == id) {
+				found = true;
+			}
+		}
+		if(found == false) {
+			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined race.");
+		}
+
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public int[] getRidersPointsInRace(int raceId) throws IDNotRecognisedException {
+		boolean found = false;
+		for(int id: Race.getRaceIds()) {
+			if(raceId == id) {
+				found = true;
+			}
+		}
+		if(found == false) {
+			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined race.");
+		}
+
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public int[] getRidersMountainPointsInRace(int raceId) throws IDNotRecognisedException {
+		boolean found = false;
+		for(int id: Race.getRaceIds()) {
+			if(raceId == id) {
+				found = true;
+			}
+		}
+		if(found == false) {
+			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined race.");
+		}
+
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public int[] getRidersGeneralClassificationRank(int raceId) throws IDNotRecognisedException {
+		boolean found = false;
+		for(int id: Race.getRaceIds()) {
+			if(raceId == id) {
+				found = true;
+			}
+		}
+		if(found == false) {
+			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined race.");
+		}
+
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public int[] getRidersPointClassificationRank(int raceId) throws IDNotRecognisedException {
+		boolean found = false;
+		for(int id: Race.getRaceIds()) {
+			if(raceId == id) {
+				found = true;
+			}
+		}
+		if(found == false) {
+			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined race.");
+		}
+
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public int[] getRidersMountainPointClassificationRank(int raceId) throws IDNotRecognisedException {
+		boolean found = false;
+		for(int id: Race.getRaceIds()) {
+			if(raceId == id) {
+				found = true;
+			}
+		}
+		if(found == false) {
+			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined race.");
+		}
+
 		// TODO Auto-generated method stub
 		return null;
 	}

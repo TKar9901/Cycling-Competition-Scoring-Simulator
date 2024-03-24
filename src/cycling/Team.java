@@ -57,6 +57,7 @@ public class Team {
             }
         }
         this.riders.put(id, new Rider(name, yearOfBirth, id, this));
+        usedRiderIds.add(id);
         return id;
     }
     public static Rider findRider(int riderId) {
