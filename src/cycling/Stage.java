@@ -5,12 +5,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Stage stores information regarding a stage
+ * such as checkpoints and the properties associated with it
+ * 
+ * @author Jake Klar
+ * @author Tamanna Kar
+ * @version 2.0
+ *
+ */
 public class Stage {
     private int id;
     private String name;
+    @SuppressWarnings("unused")
     private LocalDateTime startTime;
     private double length;
     private Race race;
+    @SuppressWarnings("unused")
     private String description;
     private StageType type;
     private Map<Integer, Checkpoint> checkpoints = new HashMap<Integer, Checkpoint>();
@@ -19,18 +30,31 @@ public class Stage {
     private Map<Integer, LocalTime> adjustedTimes = new HashMap<Integer, LocalTime>();
     private Map<Integer, Integer> sprinterClassification = new HashMap<Integer, Integer>();
     private ArrayList<Integer> riderPositions = new ArrayList<Integer>();
-    //Integer will be the position in checkpoints it is at
     private ArrayList<Integer> sprintCheckpointPositions = new ArrayList<Integer>();
     private static final int[] FLATSTAGEPOINTS = {50,30,20,18,16,14,12,10,8,7,6,5,4,3,2};
     private static final int[] MEDIUMSTAGEPOINTS = {30,25,22,19,17,15,13,11,9,7,6,5,4,3,2};
     private static final int[] HIGHMOUNTAINPOINTS = {20,17,15,13,11,10,9,8,7,6,5,4,3,2,1};
     private static final int[] TIMETRIALPOINTS = {20,17,15,13,11,10,9,8,7,6,5,4,3,2,1};
 
-    
+    /**
+     * An empty constructor used
+     * to make a temporarily empty stage
+     */
     public Stage() {
         
     }
-
+    /**
+     * Creates a new stage with the provided parameters
+     * @param name The name of the stage
+     * @param description The description of the stage
+     * @param length The distance of the stage
+     * @param startTime The time the stage begins
+     * @param type The type of stage {@link StageType#FLAT},
+     * {@link StageType#MEDIUM_MOUNTAIN}, {@link StageType#HIGH_MOUNTAIN} or
+     * {@link StageType#TT}
+     * @param id The unique id of the stage
+     * @param race The list of all races in CyclingPortalImpl
+     */
     public Stage(String name, String description, double length, LocalDateTime startTime, StageType type, int id, Race race) {
         this.id = id;
         this.name = name;
@@ -66,7 +90,13 @@ public class Stage {
         return null;
     }
 
-    //Recursively determine times
+    /**
+     * Adjusts the times of riders who finish within 1 second
+     * of each other to both have the adjusted time that was
+     * the fastest between the two
+     * @param index What position to begin sorting from
+     * @return The Map of riderIds and their newly adjusted times
+     */
     public Map<Integer, LocalTime> adjustTimes(int index) {
         LocalTime currTime = riderTimes.get(riderPositions.get(index))[riderTimes.size()-1];
         LocalTime nextTime = riderTimes.get(riderPositions.get(index+1))[riderTimes.size()-1];

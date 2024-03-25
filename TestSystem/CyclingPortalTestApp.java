@@ -31,7 +31,7 @@ public class CyclingPortalTestApp {
 		assert (portal1.getTeams().length == 0)
 				: "Innitial Portal not empty as required or not returning an empty array.";
 		try {
-			portal1.createTeam("TeamOne", "My favorite");
+			portal1.createTeam("TeamOne", null);
 			portal2.createTeam("TeamOne", "My favorite");
 			
 		} catch (IllegalNameException e) {

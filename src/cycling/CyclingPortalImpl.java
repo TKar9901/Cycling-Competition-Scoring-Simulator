@@ -1,5 +1,4 @@
 package cycling;
-
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -8,16 +7,12 @@ import java.io.ObjectOutputStream;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.math.*;
 import java.time.Duration;
 import java.lang.Double;
-import java.io.Serializable;;
 
 /*TODO
- * Replace all functions with new map storage system - Jake
  * UML Diagram - Tamanna
  * Java Doc Comments - Jake
  * Development Log - Jake
@@ -28,31 +23,41 @@ import java.io.Serializable;;
  */
 
 /**
- * BadCyclingPortal is a minimally compiling, but non-functioning implementor
+ * CyclingPortalImpl is a compiling and functioning implementation
  * of the CyclingPortal interface.
  * 
- * @author Jake Klar, Tamanna Kar
- * @version 3.0
+ * @author Jake Klar
+ * @author Tamanna Kar
+ * @version 2.0
  *
  */
 public class CyclingPortalImpl implements CyclingPortal {
 
-	private Map<Integer, Race> races = new HashMap<Integer, Race>();
-	private Map<Integer, Team> teams = new HashMap<Integer, Team>();
-	private ArrayList<Integer> usedStageIds = new ArrayList<Integer>();
-	private ArrayList<Integer> usedCheckpointIds = new ArrayList<Integer>();
-	private ArrayList<Integer> usedRiderIds = new ArrayList<Integer>();
+	private Map<Integer, Race> races;
+	private Map<Integer, Team> teams;
+	private ArrayList<Integer> usedStageIds; 
+	private ArrayList<Integer> usedCheckpointIds;
+	private ArrayList<Integer> usedRiderIds;
 
-	//Empty constructor
+	/**
+	 * Initial empty consutrctor for new CyclingPortalImpl.
+	 * For first time initalization.
+	 * There are no races, stages, teams or riders
+	 */
 	public CyclingPortalImpl() {
-
+		this.races = new HashMap<Integer, Race>();
+		this.teams = new HashMap<Integer, Team>();
+		this.usedStageIds = new ArrayList<Integer>();
+		this.usedCheckpointIds = new ArrayList<Integer>();
+		this.usedRiderIds = new ArrayList<Integer>();
 	}
 
-	//Loading in constructor
-	public CyclingPortalImpl(Map races, Map teams, ArrayList usedStageIds, ArrayList usedCheckpointIds) {
-
-	}
-
+	/**
+	 * Get the races currently created in the platform.
+	 * 
+	 * @return An array of race IDs in the system or an empty array if none exists.
+	 * 
+	 */
 	@Override
 	public int[] getRaceIds() {
 		if(races.size() < 1) {
@@ -62,8 +67,20 @@ public class CyclingPortalImpl implements CyclingPortal {
 		}
 		
 	}
-
-	//Changed to randomized id system, same functinality but our old system would become more complicated once the length of the array it was based on changed
+	/**
+	 * The method creates a staged race in the platform with the given name and
+	 * description.
+	 * 
+	 *
+	 * 
+	 * @param name        Race's name.
+	 * @param description Race's description (can be null).
+	 * @throws IllegalNameException If the name already exists in the platform.
+	 * @throws InvalidNameException If the name is null, empty, has more than 30
+	 *                              characters, or has white spaces.
+	 * @return the unique ID of the created race.
+	 * 
+	 */
 	@Override
 	public int createRace(String name, String description) throws IllegalNameException, InvalidNameException {
 		if(name==null || name=="" || name.length()>20 || name.contains(" ")){ //TODO: FIND CHARACTER LIMIT FOR RACE NAME??
@@ -81,6 +98,15 @@ public class CyclingPortalImpl implements CyclingPortal {
 		return id;
 	}
 
+	/**
+	 * Get the details from a race.
+	 * 
+	 * @param raceId The ID of the race being queried.
+	 * @return A formatted string containing the race ID, name, description,
+	 * number of stages and total length 
+	 * @throws IDNotRecognisedException If the ID does not match to any race in the
+	 *                                  system.
+	 */
 	@Override
 	public String viewRaceDetails(int raceId) throws IDNotRecognisedException {
 		boolean found = false;
@@ -96,6 +122,14 @@ public class CyclingPortalImpl implements CyclingPortal {
 		return races.get(raceId).toString();
 	}
 
+	/**
+	 * The method removes the race and all its related information, i.e., stages,
+	 * checkpoints, and results.
+	 * 
+	 * @param raceId The ID of the race to be removed.
+	 * @throws IDNotRecognisedException If the ID does not match to any race in the
+	 *                                  system.
+	 */
 	@Override
 	public void removeRaceById(int raceId) throws IDNotRecognisedException {
 		boolean found = false;
@@ -109,7 +143,14 @@ public class CyclingPortalImpl implements CyclingPortal {
 		}
 		races.remove(raceId);
 	}
-
+	/**
+	 * The method queries the number of stages created for a race.
+	 * 
+	 * @param raceId The ID of the race being queried.
+	 * @return The number of stages created for the race.
+	 * @throws IDNotRecognisedException If the ID does not match to any race in the
+	 *                                  system.
+	 */
 	@Override
 	public int getNumberOfStages(int raceId) throws IDNotRecognisedException {
 		boolean found = false;
@@ -124,7 +165,25 @@ public class CyclingPortalImpl implements CyclingPortal {
 		
 		return races.get(raceId).getStages().size();
 	}
-
+	/**
+	 * Creates a new stage and adds it to the race.
+	 * 
+	 * @param raceId      The race which the stage will be added to.
+	 * @param stageName   An identifier name for the stage.
+	 * @param description A descriptive text for the stage.
+	 * @param length      Stage length in kilometres.
+	 * @param startTime   The date and time in which the stage will be raced. It
+	 *                    cannot be null.
+	 * @param type        The type of the stage. This is used to determine the
+	 *                    amount of points given to the winner.
+	 * @return the unique ID of the stage.
+	 * @throws IDNotRecognisedException If the ID does not match to any race in the
+	 *                                  system.
+	 * @throws IllegalNameException     If the name already exists in the platform.
+	 * @throws InvalidNameException     If the name is null, empty, has more than 30
+	 *                              	characters, or has white spaces.
+	 * @throws InvalidLengthException   If the length is less than 5km.
+	 */
 	@Override
 	public int addStageToRace(int raceId, String stageName, String description, double length, LocalDateTime startTime, StageType type) 
 	throws IDNotRecognisedException, IllegalNameException, InvalidNameException, InvalidLengthException {
@@ -142,7 +201,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(found == false) {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined race.");
 		}
-		if(stageName==null || stageName=="" || stageName.length()>20 || stageName.contains(" ")){ //TODO: FIND CHARACTER LIMIT FOR STAGE NAME??
+		if(stageName==null || stageName=="" || stageName.length()>20 || stageName.contains(" ")){
 			throw new InvalidNameException("You have entered an incorrectly formatted stage name, ensure it is a string of characters with no spaces.");
 		}
 		if(Double.valueOf(length) == null || length<5) {
@@ -153,7 +212,15 @@ public class CyclingPortalImpl implements CyclingPortal {
 		usedStageIds.add(id);
 		return id;
 	}
-
+	/**
+	 * Retrieves the list of stage IDs of a race.
+	 * 
+	 * @param raceId The ID of the race being queried.
+	 * @return An array of stage IDs ordered (from first to last) by their sequence in the
+	 *         race or an empty array if none exists.
+	 * @throws IDNotRecognisedException If the ID does not match to any race in the
+	 *                                  system.
+	 */
 	@Override
 	public int[] getRaceStages(int raceId) throws IDNotRecognisedException {
 		boolean found = false;
@@ -165,11 +232,20 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(found == false) {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined race.");
 		}
-		
+		if(races.get(raceId).getStages().size() < 1) {
+			return new int[] {};
+		}
 		return races.get(raceId).getStages().keySet()
 		.stream().mapToInt(Integer::intValue).toArray();
 	}
-
+	/**
+	 * Gets the length of a stage in a race, in kilometres.
+	 * 
+	 * @param stageId The ID of the stage being queried.
+	 * @return The stage's length.
+	 * @throws IDNotRecognisedException If the ID does not match to any stage in the
+	 *                                  system.
+	 */
 	@Override
 	public double getStageLength(int stageId) throws IDNotRecognisedException {
 		boolean found = false;
@@ -184,7 +260,13 @@ public class CyclingPortalImpl implements CyclingPortal {
 		double length = Race.findStage(stageId, races).getLength();
 		return length;
 	}
-
+	/**
+	 * Removes a stage and all its related data, i.e., checkpoints and results.
+	 * 
+	 * @param stageId The ID of the stage being removed.
+	 * @throws IDNotRecognisedException If the ID does not match to any stage in the
+	 *                                  system.
+	 */
 	@Override
 	public void removeStageById(int stageId) throws IDNotRecognisedException {
 		boolean found = false;
@@ -199,7 +281,27 @@ public class CyclingPortalImpl implements CyclingPortal {
 
 		Race.findStagesRace(stageId, races).getStages().remove(stageId);
 	}
-
+	/**
+	 * Adds a climb checkpoint to a stage.
+	 * 
+	 * @param stageId         The ID of the stage to which the climb checkpoint is
+	 *                        being added.
+	 * @param location        The kilometre location where the climb finishes within
+	 *                        the stage.
+	 * @param type            The category of the climb - {@link CheckpointType#C4},
+	 *                        {@link CheckpointType#C3}, {@link CheckpointType#C2},
+	 *                        {@link CheckpointType#C1}, or {@link CheckpointType#HC}.
+	 * @param averageGradient The average gradient for the climb.
+	 * @param length          The length of the climb in kilometre.
+	 * @return The ID of the checkpoint created.
+	 * @throws IDNotRecognisedException   If the ID does not match to any stage in
+	 *                                    the system.
+	 * @throws InvalidLocationException   If the location is out of bounds of the
+	 *                                    stage length.
+	 * @throws InvalidStageStateException If the stage is "waiting for results".
+	 * @throws InvalidStageTypeException  Time-trial stages cannot contain any
+	 *                                    checkpoint.
+	 */
 	@Override
 	public int addCategorizedClimbToStage(int stageId, Double location, CheckpointType type, Double averageGradient,
 			Double length) throws IDNotRecognisedException, InvalidLocationException, InvalidStageStateException,
@@ -225,7 +327,22 @@ public class CyclingPortalImpl implements CyclingPortal {
 		
 		return Race.findStage(stageId, races).addMountainCheckpoint(location, type, averageGradient, length);
 	}
-
+	/**
+	 * Adds an intermediate sprint to a stage.
+	 * 
+	 * @param stageId  The ID of the stage to which the intermediate sprint checkpoint
+	 *                 is being added.
+	 * @param location The kilometre location where the intermediate sprint finishes
+	 *                 within the stage.
+	 * @return The ID of the checkpoint created.
+	 * @throws IDNotRecognisedException   If the ID does not match to any stage in
+	 *                                    the system.
+	 * @throws InvalidLocationException   If the location is out of bounds of the
+	 *                                    stage length.
+	 * @throws InvalidStageStateException If the stage is "waiting for results".
+	 * @throws InvalidStageTypeException  Time-trial stages cannot contain any
+	 *                                    checkpoint.
+	 */
 	@Override
 	public int addIntermediateSprintToStage(int stageId, double location) throws IDNotRecognisedException,
 			InvalidLocationException, InvalidStageStateException, InvalidStageTypeException {
@@ -251,7 +368,14 @@ public class CyclingPortalImpl implements CyclingPortal {
 		usedCheckpointIds.add(id);
 		return id;
 	}
-
+	/**
+	 * Removes a checkpoint from a stage.
+	 * 
+	 * @param checkpointId The ID of the checkpoint to be removed.
+	 * @throws IDNotRecognisedException   If the ID does not match to any checkpoint in
+	 *                                    the system.
+	 * @throws InvalidStageStateException If the stage is "waiting for results".
+	 */
 	@Override
 	public void removeCheckpoint(int checkpointId) throws IDNotRecognisedException, InvalidStageStateException {
 		boolean found = false;
@@ -269,7 +393,15 @@ public class CyclingPortalImpl implements CyclingPortal {
 		
 		Stage.findCheckpointsStage(checkpointId, races, usedStageIds).getCheckpoints().remove(checkpointId);
 	}
-
+	/**
+	 * Concludes the preparation of a stage. After conclusion, the stage's state
+	 * will be "waiting for results".
+	 * 
+	 * @param stageId The ID of the stage to be concluded.
+	 * @throws IDNotRecognisedException   If the ID does not match to any stage in
+	 *                                    the system.
+	 * @throws InvalidStageStateException If the stage is "waiting for results".
+	 */
 	@Override
 	public void concludeStagePreparation(int stageId) throws IDNotRecognisedException, InvalidStageStateException {
 		boolean found = false;
@@ -287,7 +419,15 @@ public class CyclingPortalImpl implements CyclingPortal {
 		
 		Race.findStage(stageId, races).setState();
 	}
-
+	/**
+	 * Retrieves the list of checkpoint (mountains and sprints) IDs of a stage.
+	 * 
+	 * @param stageId The ID of the stage being queried.
+	 * @return The list of checkpoint IDs ordered (from first to last) by their location in the
+	 *         stage.
+	 * @throws IDNotRecognisedException If the ID does not match to any stage in the
+	 *                                  system.
+	 */
 	@Override
 	public int[] getStageCheckpoints(int stageId) throws IDNotRecognisedException {
 		boolean found = false;
@@ -303,7 +443,16 @@ public class CyclingPortalImpl implements CyclingPortal {
 		return Race.findStage(stageId, races).getCheckpoints().keySet().stream().
 		mapToInt(Integer:: intValue).toArray();
 	}
-
+	/**
+	 * Creates a team with name and description.
+	 * 
+	 * @param name        The identifier name of the team.
+	 * @param description A description of the team.
+	 * @return The ID of the created team.
+	 * @throws IllegalNameException If the name already exists in the platform.
+	 * @throws InvalidNameException If the name is null, empty, has more than 30
+	 *                              characters, or has white spaces.
+	 */
 	@Override
 	public int createTeam(String name, String description) throws IllegalNameException, InvalidNameException {
 		for(Team t: teams.values()) {
@@ -321,7 +470,13 @@ public class CyclingPortalImpl implements CyclingPortal {
 		teams.put(id, newTeam);
 		return id;
 	}
-
+	/**
+	 * Removes a team from the system.
+	 * 
+	 * @param teamId The ID of the team to be removed.
+	 * @throws IDNotRecognisedException If the ID does not match to any team in the
+	 *                                  system.
+	 */
 	@Override
 	public void removeTeam(int teamId) throws IDNotRecognisedException {
 		boolean found = false;
@@ -336,12 +491,25 @@ public class CyclingPortalImpl implements CyclingPortal {
 		
 		teams.remove(teamId);
 	}
-
+	/**
+	 * Get the list of teams' IDs in the system.
+	 * 
+	 * @return The list of IDs from the teams in the system. An empty list if there
+	 *         are no teams in the system.
+	 * 
+	 */
 	@Override
 	public int[] getTeams() {
 		return teams.keySet().stream().mapToInt(Integer::intValue).toArray();
 	}
-
+	/**
+	 * Get the riders of a team.
+	 * 
+	 * @param teamId The ID of the team being queried.
+	 * @return A list with riders' ID.
+	 * @throws IDNotRecognisedException If the ID does not match to any team in the
+	 *                                  system.
+	 */
 	@Override
 	public int[] getTeamRiders(int teamId) throws IDNotRecognisedException {
 		boolean found = false;
@@ -357,7 +525,18 @@ public class CyclingPortalImpl implements CyclingPortal {
 		return teams.get(teamId).getRiders().keySet()
 		.stream().mapToInt(Integer::intValue).toArray();
 	}
-
+	/**
+	 * Creates a rider.
+	 * 
+	 * @param teamID      The ID rider's team.
+	 * @param name        The name of the rider.
+	 * @param yearOfBirth The year of birth of the rider.
+	 * @return The ID of the rider in the system.
+	 * @throws IDNotRecognisedException If the ID does not match to any team in the
+	 *                                  system.
+	 * @throws IllegalArgumentException If the name of the rider is null or empty,
+	 *                                  or the year of birth is less than 1900.
+	 */
 	@Override
 	public int createRider(int teamId, String name, int yearOfBirth)
 			throws IDNotRecognisedException, IllegalArgumentException {
@@ -376,6 +555,14 @@ public class CyclingPortalImpl implements CyclingPortal {
 	}
 
 	//TODO: Come back to final leaderboard issue to remove racers from that too
+	/**
+	 * Removes a rider from the system. When a rider is removed from the platform,
+	 * all of its results are also removed. Race results are updated to reflect this.
+	 * 
+	 * @param riderId The ID of the rider to be removed.
+	 * @throws IDNotRecognisedException If the ID does not match to any rider in the
+	 *                                  system.
+	 */
 	@Override
 	public void removeRider(int riderId) throws IDNotRecognisedException {
 		boolean found = false;
@@ -402,7 +589,28 @@ public class CyclingPortalImpl implements CyclingPortal {
 		
 		Team.findRider(riderId, teams).getTeam().getRiders().remove(riderId);
 	}
-	//JAKE
+	/**
+	 * Record the times of a rider in a stage.
+	 * 
+	 * @param stageId     The ID of the stage the result refers to.
+	 * @param riderId     The ID of the rider.
+	 * @param checkpointTimes An array of times at which the rider reached each of the
+	 *                    checkpoints of the stage, including the start time and the
+	 *                    finish line.
+	 * @throws IDNotRecognisedException    If the ID does not match to any rider or
+	 *                                     stage in the system.
+	 * @throws DuplicatedResultException   Thrown if the rider has already a result
+	 *                                     for the stage. Each rider can have only
+	 *                                     one result per stage.
+	 * @throws InvalidCheckpointTimesException Thrown if the length of checkpointTimes is
+	 *                                     not equal to n+2, where n is the number
+	 *                                     of checkpoints in the stage; +2 represents
+	 *                                     the start time and the finish time of the
+	 *                                     stage.
+	 * @throws InvalidStageStateException  Thrown if the stage is not "waiting for
+	 *                                     results". Results can only be added to a
+	 *                                     stage while it is "waiting for results".
+	 */
 	@Override
 	public void registerRiderResultsInStage(int stageId, int riderId, LocalTime... checkpoints)
 			throws IDNotRecognisedException, DuplicatedResultException, InvalidCheckpointTimesException,
@@ -485,7 +693,19 @@ public class CyclingPortalImpl implements CyclingPortal {
 		
 	}
 	
-	// should i bother adding other checks if he didnt declare them so is it fair to assume he won't test for them?.. applies to all functions onwards
+	/**
+	 * Get the times of a rider in a stage.
+	 * 
+	 * @param stageId The ID of the stage the result refers to.
+	 * @param riderId The ID of the rider.
+	 * @return The array of times at which the rider reached each of the checkpoints
+	 *         of the stage and the total elapsed time. The elapsed time is the
+	 *         difference between the finish time and the start time. Returns an
+	 *         empty array if there is no result registered for the rider in the
+	 *         stage.
+	 * @throws IDNotRecognisedException If the ID does not match to any rider or
+	 *                                  stage in the system.
+	 */
 	@Override
 	public LocalTime[] getRiderResultsInStage(int stageId, int riderId) throws IDNotRecognisedException {
 		boolean stageFound = false;
@@ -510,7 +730,16 @@ public class CyclingPortalImpl implements CyclingPortal {
 		return Race.findStage(stageId, races).getRiderTimes().get(riderId);
 	}
 
-	//I really am not sure if this works properly lol
+	/**
+	 * Gets the adjusted elapsed times for the rider in the stage
+	 * 
+	 * @param stageId The ID of the stage the result refers to.
+	 * @param riderId The ID of the rider.
+	 * @return The adjusted elapsed time for the rider in the stage. Return null if 
+	 * 		  there is no result registered for the rider in the stage.
+	 * @throws IDNotRecognisedException   If the ID does not match to any rider or
+	 *                                    stage in the system.
+	 */
 	@Override
 	public LocalTime getRiderAdjustedElapsedTimeInStage(int stageId, int riderId) throws IDNotRecognisedException {
 		boolean stageFound = false;
@@ -531,11 +760,21 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(riderFound == false) {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined rider.");
 		}
+		if(!Race.findStage(stageId, races).getRiderTimes().containsKey(riderId)) {
+			return null;
+		}
 		
 		Map<Integer, LocalTime> adjustedTimes = Race.findStage(stageId, races).adjustTimes(0);
 		return adjustedTimes.get(riderId);
 	}
-
+	/**
+	 * Removes the stage results from the rider.
+	 * 
+	 * @param stageId The ID of the stage the result refers to.
+	 * @param riderId The ID of the rider.
+	 * @throws IDNotRecognisedException If the ID does not match to any rider or
+	 *                                  stage in the system.
+	 */
 	@Override
 	public void deleteRiderResultsInStage(int stageId, int riderId) throws IDNotRecognisedException {
 		boolean stageFound = false;
@@ -559,7 +798,15 @@ public class CyclingPortalImpl implements CyclingPortal {
 		
 		Race.findStage(stageId, races).getRiderTimes().remove(riderId);
 	}
-
+	/**
+	 * Get the riders finished position in a a stage.
+	 * 
+	 * @param stageId The ID of the stage being queried.
+	 * @return A list of riders ID sorted by their elapsed time. An empty list if
+	 *         there is no result for the stage.
+	 * @throws IDNotRecognisedException If the ID does not match any stage in the
+	 *                                  system.
+	 */
 	@Override
 	public int[] getRidersRankInStage(int stageId) throws IDNotRecognisedException {
 		boolean found = false;
@@ -571,12 +818,22 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(found == false) {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined stage.");
 		}
+		if(Race.findStage(stageId, races).getRiderTimes().size()<1) {
+			return new int[] {};
+		}
 		
 		return Race.findStage(stageId, races).getRiderPositions().stream().
 		mapToInt(Integer::intValue).toArray();
 	}
-
-	//Again may or may not work
+	/**
+	 * Get the adjusted elapsed times of riders in a stage.
+	 * 
+	 * @param stageId The ID of the stage being queried.
+	 * @return The ranked list of adjusted elapsed times sorted by their finish
+	 *         time. An empty list if there is no result for the stage.
+	 * @throws IDNotRecognisedException If the ID does not match any stage in the
+	 *                                  system.
+	 */
 	@Override
 	public LocalTime[] getRankedAdjustedElapsedTimesInStage(int stageId) throws IDNotRecognisedException {
 		boolean found = false;
@@ -588,12 +845,24 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(found == false) {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined stage.");
 		}
+		if(Race.findStage(stageId, races).getRiderTimes().size() < 1) {
+			return new LocalTime[] {};
+		}
 		
 		Map<Integer, LocalTime> adjustedTimes = Race.findStage(stageId, races).adjustTimes(0);
 		return adjustedTimes.values().toArray(new LocalTime[0]);
 	}
 
-	//May need help with this one not sure how to go about it
+	/**
+	 * Get the number of points obtained by each rider in a stage.
+	 * 
+	 * @param stageId The ID of the stage being queried.
+	 * @return The ranked list of points each riders received in the stage, sorted
+	 *         by their elapsed time. An empty list if there is no result for the
+	 *         stage.
+	 * @throws IDNotRecognisedException If the ID does not match any stage in the
+	 *                                  system.
+	 */
 	@Override
 	public int[] getRidersPointsInStage(int stageId) throws IDNotRecognisedException {
 		boolean found = false;
@@ -606,10 +875,18 @@ public class CyclingPortalImpl implements CyclingPortal {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined stage.");
 		}
 		
-		// TODO Auto-generated method stub
 		return null;
 	}
-
+	/**
+	 * Get the number of mountain points obtained by each rider in a stage.
+	 * 
+	 * @param stageId The ID of the stage being queried.
+	 * @return The ranked list of mountain points each riders received in the stage,
+	 *         sorted by their finish time. An empty list if there is no result for
+	 *         the stage.
+	 * @throws IDNotRecognisedException If the ID does not match any stage in the
+	 *                                  system.
+	 */
 	@Override
 	public int[] getRidersMountainPointsInStage(int stageId) throws IDNotRecognisedException {
 		boolean found = false;
@@ -621,26 +898,49 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(found == false) {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined stage.");
 		}
-		
-		// TODO Auto-generated method stub
+		if(Race.findStage(stageId, races).getRiderTimes().size()<1) {
+			return new int[] {};
+		}
+
 		return null;
 	}
 
-	//Unless I'm dense there isn't anything stored in this so I don't get what it's meant to do
+	/**
+	 * Method empties this CyclingPortalImpl of its contents and resets all
+	 * internal counters.
+	 */
 	@Override
 	public void eraseCyclingPortal() {
-		// TODO Auto-generated method stub
-
+		this.races = new HashMap<Integer, Race>();
+		this.teams = new HashMap<Integer, Team>();
+		this.usedCheckpointIds = new ArrayList<Integer>();
+		this.usedStageIds = new ArrayList<Integer>();
+		this.usedRiderIds = new ArrayList<Integer>();
 	}
-
+	/**
+	 * Method saves this CyclingPortalImpl contents into a serialised file,
+	 * with the filename given in the argument.
+	 *
+	 * @param filename Location of the file to be saved.
+	 * @throws IOException If there is a problem experienced when trying to save the
+	 *                     store contents to the file.
+	 */
 	@Override
 	public void saveCyclingPortal(String filename) throws IOException {
 		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filename)); 
 		out.writeObject(this);
 		out.close();
 	}
-
-	//Have 0 clue to do what this is asking
+	/**
+	 * Method loads and replaces this CyclingPortalImpl contents with the
+	 * serialised contents stored in the file given in the argument.
+	 *
+	 * @param filename Location of the file to be loaded.
+	 * @throws IOException            If there is a problem experienced when trying
+	 *                                to load the store contents from the file.
+	 * @throws ClassNotFoundException If required class files cannot be found when
+	 *                                loading.
+	 */
 	@Override
 	public void loadCyclingPortal(String filename) throws IOException, ClassNotFoundException {
 		ObjectInputStream in = new ObjectInputStream(new FileInputStream(filename));
@@ -652,7 +952,14 @@ public class CyclingPortalImpl implements CyclingPortal {
 		this.usedStageIds = loadedImpl.usedStageIds;
 		in.close();
 	}
-
+	/**
+	 * The method removes the race and all its related information, i.e., stages,
+	 * checkpoints, and results.
+	 * 
+	 * @param name The name of the race to be removed.
+	 * @throws NameNotRecognisedException If the name does not match to any race in
+	 *                                    the system.
+	 */
 	@Override
 	public void removeRaceByName(String name) throws NameNotRecognisedException {
 		boolean found = false;
@@ -671,7 +978,17 @@ public class CyclingPortalImpl implements CyclingPortal {
             }
         }
 	}
-
+	/**
+	 * Get the general classification rank of riders in a race.
+	 * 
+	 * @param raceId The ID of the race being queried.
+	 * @return A ranked list of riders' IDs sorted ascending by the sum of their
+	 *         adjusted elapsed times in all stages of the race. That is, the first
+	 *         in this list is the winner (least time). An empty list if there is no
+	 *         result for any stage in the race.
+	 * @throws IDNotRecognisedException If the ID does not match any race in the
+	 *                                  system.
+	 */
 	@Override
 	public LocalTime[] getGeneralClassificationTimesInRace(int raceId) throws IDNotRecognisedException {
 		boolean found = false;
@@ -683,11 +1000,19 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(found == false) {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined race.");
 		}
-
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+	/**
+	 * Get the general classification times of riders in a race.
+	 * 
+	 * @param raceId The ID of the race being queried.
+	 * @return A list of riders' times sorted by the sum of their adjusted elapsed
+	 *         times in all stages of the race. An empty list if there is no result
+	 *         for any stage in the race.
+	 * @throws IDNotRecognisedException If the ID does not match any race in the
+	 *                                  system.
+	 */
 	@Override
 	public int[] getRidersPointsInRace(int raceId) throws IDNotRecognisedException {
 		boolean found = false;
@@ -703,7 +1028,16 @@ public class CyclingPortalImpl implements CyclingPortal {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+	/**
+	 * Get the overall points of riders in a race.
+	 * 
+	 * @param raceId The ID of the race being queried.
+	 * @return An array of riders' points (i.e., the sum of their points in all stages
+	 *         of the race), sorted by the total adjusted elapsed time. An empty array if
+	 *         there is no result for any stage in the race.
+	 * @throws IDNotRecognisedException If the ID does not match any race in the
+	 *                                  system.
+	 */
 	@Override
 	public int[] getRidersMountainPointsInRace(int raceId) throws IDNotRecognisedException {
 		boolean found = false;
@@ -719,7 +1053,16 @@ public class CyclingPortalImpl implements CyclingPortal {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+	/**
+	 * Get the overall mountain points of riders in a race.
+	 * 
+	 * @param raceId The ID of the race being queried.
+	 * @return An array of riders' mountain points (i.e., the sum of their mountain
+	 *         points in all stages of the race), sorted by the total adjusted elapsed time.
+	 *         An empty array if there is no result for any stage in the race.
+	 * @throws IDNotRecognisedException If the ID does not match any race in the
+	 *                                  system.
+	 */
 	@Override
 	public int[] getRidersGeneralClassificationRank(int raceId) throws IDNotRecognisedException {
 		boolean found = false;
@@ -735,7 +1078,17 @@ public class CyclingPortalImpl implements CyclingPortal {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+	/**
+	 * Get the ranked list of riders based on the points classification in a race.
+	 * 
+	 * @param raceId The ID of the race being queried.
+	 * @return A ranked list of riders' IDs sorted descending by the sum of their
+	 *         points in all stages of the race. That is, the first in this list is
+	 *         the winner (more points). An empty list if there is no result for any
+	 *         stage in the race.
+	 * @throws IDNotRecognisedException If the ID does not match any race in the
+	 *                                  system.
+	 */
 	@Override
 	public int[] getRidersPointClassificationRank(int raceId) throws IDNotRecognisedException {
 		boolean found = false;
@@ -751,7 +1104,17 @@ public class CyclingPortalImpl implements CyclingPortal {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+	/**
+	 * Get the ranked list of riders based on the mountain classification in a race.
+	 * 
+	 * @param raceId The ID of the race being queried.
+	 * @return A ranked list of riders' IDs sorted descending by the sum of their
+	 *         mountain points in all stages of the race. That is, the first in this
+	 *         list is the winner (more points). An empty list if there is no result
+	 *         for any stage in the race.
+	 * @throws IDNotRecognisedException If the ID does not match any race in the
+	 *                                  system.
+	 */
 	@Override
 	public int[] getRidersMountainPointClassificationRank(int raceId) throws IDNotRecognisedException {
 		boolean found = false;
