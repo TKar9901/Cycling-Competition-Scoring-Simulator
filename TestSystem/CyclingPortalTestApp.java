@@ -1,6 +1,3 @@
-import java.time.LocalTime;
-import java.util.Arrays;
-
 import cycling.CyclingPortalImpl;
 import cycling.IllegalNameException;
 import cycling.InvalidNameException;

@@ -19,7 +19,6 @@ public class Race {
     private String name;
     private String description;
     private Map<Integer, Stage> stages = new HashMap<Integer, Stage>();
-    @SuppressWarnings("unused")
     private Map<LocalTime, Integer> adjustedTimes = new HashMap<LocalTime, Integer>();
 
     /**

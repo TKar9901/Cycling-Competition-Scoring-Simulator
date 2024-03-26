@@ -16,9 +16,9 @@ import java.lang.Double;
 /*TODO
  * UML Diagram - Tamanna
  * Development Log - Jake
- * Serilization functions - Wait
  * Writing more basic tests - Tamanna
- * If time doing the mountain points and sprint points - Wait
+ * Mountain and Sprint points per stage
+ * Mountain and Sprint points per race
  */
 
 /**
@@ -880,7 +880,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(found == false) {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined stage.");
 		}
-		
+		//TODO this function
 		return null;
 	}
 	/**
@@ -908,6 +908,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 			return new int[] {};
 		}
 
+		//TODO this function
 		return null;
 	}
 
@@ -1045,7 +1046,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(found == false) {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined race.");
 		}
-		
+		//TODO this function
 		return null;
 	}
 	/**
@@ -1070,8 +1071,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(found == false) {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined race.");
 		}
-
-		// TODO Auto-generated method stub
+		//TODO this function
 		return null;
 	}
 	/**
@@ -1129,7 +1129,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined race.");
 		}
 
-		// TODO Auto-generated method stub
+		//TODO this function
 		return null;
 	}
 	/**
@@ -1155,7 +1155,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined race.");
 		}
 
-		// TODO Auto-generated method stub
+		//TODO this function
 		return null;
 	}
 
