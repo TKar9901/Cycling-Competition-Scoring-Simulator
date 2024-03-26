@@ -1,5 +1,6 @@
 package cycling;
 import java.util.ArrayList;
+import java.time.LocalTime;;
 
 /**
  * Checkpoint holds information regarding
@@ -25,5 +26,20 @@ public abstract class Checkpoint {
      * @return The type of checkpoint
      */
     public abstract CheckpointType getType();
-    
+    /**
+     * Adds a riders time of passing the checkpoint
+     * @param riderId The unique id of the rider
+     * @param time The time that they pased the checkpoint
+     */
+    public abstract void addResult(int riderId, LocalTime time);
+    /**
+     * Sorts the recorded results for the checkpoint
+     */
+    public abstract void sortResults();
+    /**
+     * Gets the number of points a rider should be rewarded for the checkpoint
+     * @param riderId The unique id of the rider
+     * @return The number of points
+     */
+    public abstract int getRiderPointReward(int riderId);
 }

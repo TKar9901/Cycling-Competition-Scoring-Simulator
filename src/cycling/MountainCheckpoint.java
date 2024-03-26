@@ -1,5 +1,9 @@
 package cycling;
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * SprintCheckpoint extends the abstract
@@ -18,6 +22,8 @@ public class MountainCheckpoint extends Checkpoint{
     @SuppressWarnings("unused")
     private double length;
     private int id;
+    private Map<LocalTime, Integer> riderTimes = new HashMap<LocalTime, Integer>();
+    private ArrayList<LocalTime> sortedTimes = new ArrayList<LocalTime>();
 
     /**
      * Creates a new MountainCheckpoint with the following parameters
@@ -44,5 +50,26 @@ public class MountainCheckpoint extends Checkpoint{
     @Override
     public CheckpointType getType() {
         return this.type;
+    }
+    @Override
+    public void addResult(int riderId, LocalTime time) {
+        riderTimes.put(time, riderId);
+        sortedTimes.add(time);
+    }
+    @Override
+    public void sortResults() {
+        Collections.sort(sortedTimes);
+    }
+    @Override
+    public int getRiderPointReward(int riderId) {
+        int points = 0;
+        for(int i=0; i<sortedTimes.size(); i++) {
+            if(i < 15) {
+                if(riderTimes.get(sortedTimes.get(i)) == riderId) {
+                    //Depends on the climb type
+                }
+            }
+        }
+        return points;
     }
 }

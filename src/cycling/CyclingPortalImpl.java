@@ -880,8 +880,12 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(found == false) {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined stage.");
 		}
-		//TODO this function
-		return null;
+		if(Race.findStage(stageId, races).getRiderPositions().size() < 1) {
+			return new int[] {};
+		}
+
+		return Race.findStage(stageId, races).
+		getSprinterPoints().values().stream().mapToInt(Integer::intValue).toArray();
 	}
 	/**
 	 * Get the number of mountain points obtained by each rider in a stage.

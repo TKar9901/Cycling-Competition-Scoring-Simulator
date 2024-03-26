@@ -30,7 +30,8 @@ public class Stage {
     private Map<Integer, LocalTime> adjustedTimes = new HashMap<Integer, LocalTime>();
     private Map<Integer, Integer> sprinterClassification = new HashMap<Integer, Integer>();
     private ArrayList<Integer> riderPositions = new ArrayList<Integer>();
-    private ArrayList<Integer> sprintCheckpointPositions = new ArrayList<Integer>();
+    private ArrayList<Integer> sprintCheckpointIds = new ArrayList<Integer>();
+    private ArrayList<Integer> sprintCheckpointRef = new ArrayList<Integer>();
     private static final int[] FLATSTAGEPOINTS = {50,30,20,18,16,14,12,10,8,7,6,5,4,3,2};
     private static final int[] MEDIUMSTAGEPOINTS = {30,25,22,19,17,15,13,11,9,7,6,5,4,3,2};
     private static final int[] HIGHMOUNTAINPOINTS = {20,17,15,13,11,10,9,8,7,6,5,4,3,2,1};
@@ -70,24 +71,44 @@ public class Stage {
     public Map<Integer, Integer> getSprinterPoints() {
         //Points for the stage itself
         for(int i=0; i<riderPositions.size(); i++) {
-            switch(this.type) {
-                case StageType.FLAT:
-                    sprinterClassification.put(riderPositions.get(i), FLATSTAGEPOINTS[i]);
-                    break;
-                case StageType.MEDIUM_MOUNTAIN:
-                    sprinterClassification.put(riderPositions.get(i), MEDIUMSTAGEPOINTS[i]);
-                    break;
-                case StageType.HIGH_MOUNTAIN:
-                    sprinterClassification.put(riderPositions.get(i), HIGHMOUNTAINPOINTS[i]);
-                    break;
-                //This one will need to look at all racers time for this type, current implementation doesn't work
-                case StageType.TT:
-                    sprinterClassification.put(riderPositions.get(i), TIMETRIALPOINTS[i]);
+            if(i < 15) {
+                switch(this.type) {
+                    case StageType.FLAT:
+                        sprinterClassification.put(riderPositions.get(i), FLATSTAGEPOINTS[i]);
+                        break;
+                    case StageType.MEDIUM_MOUNTAIN:
+                        sprinterClassification.put(riderPositions.get(i), MEDIUMSTAGEPOINTS[i]);
+                        break;
+                    case StageType.HIGH_MOUNTAIN:
+                        sprinterClassification.put(riderPositions.get(i), HIGHMOUNTAINPOINTS[i]);
+                        break;
+                    case StageType.TT:
+                        sprinterClassification.put(riderPositions.get(i), TIMETRIALPOINTS[i]);
+                } 
             }
-            
+            //If placing over 15th place, riders are given 0 points for stage finish
+            else {
+                sprinterClassification.put(riderPositions.get(i), 0);
+            }
         }
-        //TODO: Points for any checkpoints that are intermediate sprints, need to look at all racers times for this checkpoint
-        return null;
+        //Congregating all rider times for the all the sprint checkpoints in the stage
+        for(int i=0; i < sprintCheckpointIds.size(); i++) {
+            for(int j=0; j<riderPositions.size(); j++) {
+                int currRider = riderPositions.get(j);
+                checkpoints.get(sprintCheckpointIds.get(i)).addResult(currRider,
+                riderTimes.get(currRider)[sprintCheckpointRef.get(i)]);
+            }
+            checkpoints.get(sprintCheckpointIds.get(i)).sortResults();
+            
+            //Calculates the amount of points to be rewarded for this checkpoint
+            for(int k=0; k<riderPositions.size(); k++) {
+                int points = checkpoints.get(sprintCheckpointIds.get(i))
+                .getRiderPointReward(riderPositions.get(k));
+                sprinterClassification.put(riderPositions.get(k), 
+                riderPositions.get(k) + points);
+            }
+        }
+        return sprinterClassification;
     }
 
     /**
@@ -227,7 +248,8 @@ public class Stage {
             }
         }
         this.checkpoints.put(id, new SprintCheckpoint(location, id));
-        this.sprintCheckpointPositions.add(this.getCheckpoints().size()-1);
+        this.sprintCheckpointIds.add(id);
+        this.sprintCheckpointRef.add(checkpoints.size()-1);
         return id;
     }
     /**
