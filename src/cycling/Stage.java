@@ -114,34 +114,85 @@ public class Stage {
         }
         return adjustedTimes;
     }
-    
+    /**
+     * Gets the checkpoints within a stage
+     * @return A map of the checkpoint objects and ids within a stage
+     */
     public Map<Integer, Checkpoint> getCheckpoints() {
         return checkpoints;
     }
+    /**
+     * Gets the id of a stage
+     * @return The unique id of the stage
+     */
     public int getId() {
         return this.id;
     }
+    /**
+     * Gets the name of a stage
+     * @return The name of the stage
+     */
     public String getName() {
         return this.name;
     }
+    /**
+     * Gets the length of a stage
+     * @return The length of the stage
+     */
     public double getLength() {
         return this.length;
     }
+    /**
+     * Gets the state of a tage
+     * @return The state of the stage
+     */
     public String getState() {
         return this.state;
     }
+    /**
+     * Sets the current state of a stage to "waiting for results".
+     * Applies after the stage has finished being configured
+     */
     public void setState() {
         this.state = "waiting for results";
     }
+    /**
+     * Gets the type of a stage
+     * @return The type of stage: {@link StageType#FLAT},
+     * {@link StageType#MEDIUM_MOUNTAIN}, {@link StageType#HIGH_MOUNTAIN} or
+     * {@link StageType#TT} it is
+     */
     public StageType getType() {
         return this.type;
     }
+    /**
+     * Adds the results of a stage for a specific rider
+     * @param id The unique id of the rider these times belongs to
+     * @param times The array of times each checkpoint was passed
+     * inside the stage for that rider
+     */
     public void addResults(int id, LocalTime[] times) {
         this.riderTimes.put(id, times);
     }
+    /**
+     * Gets the results for a rider in a stage
+     * @param id The unique id of the rider whose results are being returned
+     * @return The array of times each checkpoint was passed
+     * inside the stage for the rider
+     */
     public LocalTime[] getResults(int id) {
         return this.riderTimes.get(id);
     }
+    /**
+     * Adds a new mountain checkpoint to a stage
+     * @param location Where in the stage this checkpoint is
+     * @param type The category of the climb - {@link CheckpointType#C4},
+	 *                        {@link CheckpointType#C3}, {@link CheckpointType#C2},
+	 *                        {@link CheckpointType#C1}, or {@link CheckpointType#HC}
+     * @param gradient The average gradient of the climb
+     * @param length The length (in km) of the climb
+     * @return The unique id of the checkpoint created
+     */
     public int addMountainCheckpoint(double location, CheckpointType type, double gradient, double length) {
         int id = 0;
 		boolean used = true;
@@ -154,6 +205,11 @@ public class Stage {
         this.checkpoints.put(id, new MountainCheckpoint(location, type, gradient, length, id));
         return id;
     }
+    /**
+     * Adds an intermediate sprint checkpoint to a stage
+     * @param location Where in the stage this checkpoint is
+     * @return The unique id of the checkpoint created
+     */
     public int addSprintCheckpoint(double location) {
         int id = 0;
 		boolean used = true;
@@ -167,6 +223,13 @@ public class Stage {
         this.sprintCheckpointPositions.add(this.getCheckpoints().size()-1);
         return id;
     }
+    /**
+     * Finds the stage a checkpoint is in
+     * @param checkpointId The unique id of the checkpoint being referenced
+     * @param races The list of races in CyclingPortalImpl
+     * @param stageIds The list of all stage ids in CyclingPortalImpl
+     * @return The stage that the checkpoint that checkpointId belongs to is in
+     */
     public static Stage findCheckpointsStage(int checkpointId, Map<Integer, Race> races, ArrayList<Integer> stageIds) {
         Stage stage = new Stage();
         int[] raceIds = races.keySet().stream().mapToInt(Integer::intValue).toArray();
@@ -180,13 +243,26 @@ public class Stage {
         }
         return stage;
     }
-
+    /**
+     * Gets all of the times for every rider in a stage
+     * @return A map containing all of the rider ids and their
+     * times for the stage
+     */
     public Map<Integer, LocalTime[]> getRiderTimes() {
         return this.riderTimes;
     }
+    /**
+     * Gets the finishing positions of every rider in a stage
+     * @return An ordered list of the rider ids corresponding
+     * to where they finished for this stage
+     */
     public ArrayList<Integer> getRiderPositions() {
         return this.riderPositions;
     }
+    /**
+     * Gets the race that a stage belongs to
+     * @return The race that the stage belongs to
+     */
     public Race getRace() {
         return this.race;
     }

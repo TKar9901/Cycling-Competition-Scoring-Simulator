@@ -17,7 +17,6 @@ public class Race {
     private ArrayList<Rider> riders;
     private String name;
     private String description;
-    private double length;
     private Map<Integer, Stage> stages = new HashMap<Integer, Stage>();
 
     /**
@@ -42,27 +41,28 @@ public class Race {
     }
     /**
      * Gets the id of a race
-     * @return The id of this race.
+     * @return The id of the race.
      */
     public int getId() {
         return this.id;
     }
     /**
      * Gets the name of a race
-     * @return The name of this race.
+     * @return The name of the race.
      */
     public String getName() {
         return this.name;
     }
     /**
      * Gets the description of a race
-     * @return
+     * @return The description of the race
      */
     public String getDescription() {
         return this.description;
     }
     /**
-     * 
+     * Creates a new stage with the given parameters.
+     * Also generates a unique id for the stage
      * @param name The name of the stage
      * @param description The description of the stage
      * @param Length The distance of the stage
@@ -70,7 +70,7 @@ public class Race {
      * @param type The type of race {@link StageType#FLAT},
      * {@link StageType#MEDIUM_MOUNTAIN}, {@link StageType#HIGH_MOUNTAIN} or
      * {@link StageType#TT}
-     * @return The unique ID of this stage
+     * @return The unique ID of the created stage
      */
     public int addStage(String name, String description, double length, LocalDateTime startTime, StageType type) {
         int id = 0;
@@ -85,14 +85,14 @@ public class Race {
         return id;
     }
     /**
-     * Gets the riders in this race
-     * @return An ArrayList of rider ids of those competing in this race
+     * Gets the riders in a race
+     * @return An ArrayList of rider ids of those competing in the race
      */
     public ArrayList<Rider> getRiders() {
         return this.riders;
     }
     /**
-     * Gets the stages in this race
+     * Gets the stages in a race
      * @return A map containing the stage ids and stage objects of those in the race
      */
     public Map<Integer, Stage> getStages() {
@@ -102,7 +102,7 @@ public class Race {
      * Finds a stage using a stageId
      * @param stageId The unique id representing the stage being searched for
      * @param races The list of all races in CyclingPortalImpl
-     * @return The stage stageId belongs to
+     * @return The stage that stageId belongs to
      */
     public static Stage findStage(int stageId, Map<Integer, Race> races) {
         int correctId = 0;

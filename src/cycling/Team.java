@@ -45,29 +45,29 @@ public class Team {
         this.description = description;
     }
     /**
-     * Gets the id of this team
-     * @return The unique ID of this team
+     * Gets the id of a team
+     * @return The unique ID of the team
      */
     public int getId() {
         return this.id;
     }
     /**
-     * Gets the the name of this team
-     * @return The name of this team
+     * Gets the the name of a team
+     * @return The name of the team
      */
     public String getName() {
         return this.name;
     }
     /**
-     * Gets the riders inside this team
+     * Gets the riders inside a team
      * @return A map containing the rider ids and
-     * rider objects for this team
+     * rider objects for the team
      */
     public Map<Integer, Rider> getRiders() {
         return this.riders;
     }
     /**
-     * Adds a rider to this team
+     * Adds a rider to a team
      * @param name The name of the rider
      * @param yearOfBirth The year the rider was born
      * @return The unique ID of the rider added to the team
