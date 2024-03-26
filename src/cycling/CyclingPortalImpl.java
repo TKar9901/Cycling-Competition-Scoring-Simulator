@@ -7,6 +7,7 @@ import java.io.ObjectOutputStream;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.time.Duration;
@@ -14,10 +15,8 @@ import java.lang.Double;
 
 /*TODO
  * UML Diagram - Tamanna
- * Java Doc Comments - Jake
  * Development Log - Jake
  * Serilization functions - Wait
- * General Classification Functions - Wait
  * Writing more basic tests - Tamanna
  * If time doing the mountain points and sprint points - Wait
  */
@@ -83,7 +82,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 	 */
 	@Override
 	public int createRace(String name, String description) throws IllegalNameException, InvalidNameException {
-		if(name==null || name=="" || name.length()>20 || name.contains(" ")){ //TODO: FIND CHARACTER LIMIT FOR RACE NAME??
+		if(name==null || name=="" || name.length()>20 || name.contains(" ")){
 			throw new InvalidNameException("You have entered an incorrectly formatted race name, ensure it is a string of characters with no spaces.");
 		}
 		for(Race r: races.values()) {
@@ -461,7 +460,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 			}
 		}
 		
-		if(name==null || name.equals("") || name.length()>20 || name.contains(" ")){ //TODO: FIND CHARACTER LIMIT FOR TEAM NAME??
+		if(name==null || name.equals("") || name.length()>20 || name.contains(" ")){ 
 			throw new InvalidNameException("You have entered an incorrectly formatted team name, ensure it is a string of characters with no spaces.");
 		}
 		
@@ -554,7 +553,6 @@ public class CyclingPortalImpl implements CyclingPortal {
 		return id;
 	}
 
-	//TODO: Come back to final leaderboard issue to remove racers from that too
 	/**
 	 * Removes a rider from the system. When a rider is removed from the platform,
 	 * all of its results are also removed. Race results are updated to reflect this.
@@ -583,11 +581,19 @@ public class CyclingPortalImpl implements CyclingPortal {
 				stream().mapToInt(Integer::intValue).toArray();
 				int currStageId = races.get((riderRaces.get(i))).getStages().get(currentRaceStages[j]).getId();
 				Race.findStage(currStageId, races).getRiderTimes().remove(riderId);
+				Race.findStage(currStageId, races).getRiderPositions().remove(riderId);
+				Race.findStage(currStageId, races).getAdjustedTimes().remove(riderId);
 			}
+			//Removes the rider from the races final elapsed times if it has been calculated
+			races.get((riderRaces.get(i))).getAdjustedTimes().values().remove(riderId);
+			
 			
 		}
-		
+		//Removes the rider from the team they were in
 		Team.findRider(riderId, teams).getTeam().getRiders().remove(riderId);
+		
+		//TODO Removes a rider from any checkpoints they're in
+
 	}
 	/**
 	 * Record the times of a rider in a stage.
@@ -979,16 +985,16 @@ public class CyclingPortalImpl implements CyclingPortal {
         }
 	}
 	/**
-	 * Get the general classification rank of riders in a race.
+	 * Get the general classification times of riders in a race.
 	 * 
 	 * @param raceId The ID of the race being queried.
-	 * @return A ranked list of riders' IDs sorted ascending by the sum of their
-	 *         adjusted elapsed times in all stages of the race. That is, the first
-	 *         in this list is the winner (least time). An empty list if there is no
-	 *         result for any stage in the race.
+	 * @return A list of riders' times sorted by the sum of their adjusted elapsed
+	 *         times in all stages of the race. An empty list if there is no result
+	 *         for any stage in the race.
 	 * @throws IDNotRecognisedException If the ID does not match any race in the
 	 *                                  system.
 	 */
+	//TODO add the empty list return
 	@Override
 	public LocalTime[] getGeneralClassificationTimesInRace(int raceId) throws IDNotRecognisedException {
 		boolean found = false;
@@ -1000,16 +1006,31 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(found == false) {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined race.");
 		}
-		// TODO Auto-generated method stub
-		return null;
+		
+		Race race = races.get(raceId);
+		LocalTime[] generalClassificationTimes = new LocalTime[race.getRiders().size()];
+		int[] allStages = race.getStages().keySet().stream().mapToInt(Integer::intValue).toArray();
+		LocalTime currentRiderTime;
+		for(int i=0; i<race.getRiders().size(); i++) {
+			currentRiderTime = LocalTime.parse("00:00:00");
+			for(int j=0; j<allStages.length; j++) {
+				Duration dur = Duration.between(currentRiderTime, getRiderAdjustedElapsedTimeInStage
+				(allStages[j], race.getRiders().get(i).getId()));
+				currentRiderTime.plus(dur);
+			}
+			race.addAdjustedTime(currentRiderTime, race.getRiders().get(i).getId());
+			generalClassificationTimes[i] = currentRiderTime;
+		}
+		Arrays.sort(generalClassificationTimes);
+		return generalClassificationTimes;
 	}
 	/**
-	 * Get the general classification times of riders in a race.
+	 * Get the overall points of riders in a race.
 	 * 
 	 * @param raceId The ID of the race being queried.
-	 * @return A list of riders' times sorted by the sum of their adjusted elapsed
-	 *         times in all stages of the race. An empty list if there is no result
-	 *         for any stage in the race.
+	 * @return An array of riders' points (i.e., the sum of their points in all stages
+	 *         of the race), sorted by the total adjusted elapsed time. An empty array if
+	 *         there is no result for any stage in the race.
 	 * @throws IDNotRecognisedException If the ID does not match any race in the
 	 *                                  system.
 	 */
@@ -1024,17 +1045,17 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(found == false) {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined race.");
 		}
-
-		// TODO Auto-generated method stub
+		
 		return null;
 	}
 	/**
-	 * Get the overall points of riders in a race.
+	 * Get the overall mountain points of riders in a race.
 	 * 
 	 * @param raceId The ID of the race being queried.
-	 * @return An array of riders' points (i.e., the sum of their points in all stages
-	 *         of the race), sorted by the total adjusted elapsed time. An empty array if
-	 *         there is no result for any stage in the race.
+	 * @return An array of riders' mountain points (i.e., the sum of their mountain
+	 *         points in all stages of the race), sorted by the total adjusted elapsed time.
+	 *         An empty array if there is no result for any stage in the race.
+	 *  
 	 * @throws IDNotRecognisedException If the ID does not match any race in the
 	 *                                  system.
 	 */
@@ -1054,15 +1075,17 @@ public class CyclingPortalImpl implements CyclingPortal {
 		return null;
 	}
 	/**
-	 * Get the overall mountain points of riders in a race.
+	 * Get the general classification rank of riders in a race.
 	 * 
 	 * @param raceId The ID of the race being queried.
-	 * @return An array of riders' mountain points (i.e., the sum of their mountain
-	 *         points in all stages of the race), sorted by the total adjusted elapsed time.
-	 *         An empty array if there is no result for any stage in the race.
+	 * @return A ranked list of riders' IDs sorted ascending by the sum of their
+	 *         adjusted elapsed times in all stages of the race. That is, the first
+	 *         in this list is the winner (least time). An empty list if there is no
+	 *         result for any stage in the race.
 	 * @throws IDNotRecognisedException If the ID does not match any race in the
 	 *                                  system.
 	 */
+	//TODO add the empty list return
 	@Override
 	public int[] getRidersGeneralClassificationRank(int raceId) throws IDNotRecognisedException {
 		boolean found = false;
@@ -1074,9 +1097,14 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(found == false) {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined race.");
 		}
-
-		// TODO Auto-generated method stub
-		return null;
+		LocalTime[] keys = getGeneralClassificationTimesInRace(raceId);
+		int[] generalClassificationRanks = new int[keys.length];
+		Map<LocalTime, Integer> times = races.get(raceId).getAdjustedTimes();
+		for(int i=0; i<keys.length; i++) {
+			generalClassificationRanks[i] = times.get(keys[i]);
+		}
+		return generalClassificationRanks;
+		
 	}
 	/**
 	 * Get the ranked list of riders based on the points classification in a race.

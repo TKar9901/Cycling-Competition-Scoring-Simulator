@@ -115,6 +115,13 @@ public class Stage {
         return adjustedTimes;
     }
     /**
+     * Gets the adjusted times of a race
+     * @return The adjusted times of the race
+     */
+    public Map<Integer, LocalTime> getAdjustedTimes() {
+        return this.adjustedTimes;
+    }
+    /**
      * Gets the checkpoints within a stage
      * @return A map of the checkpoint objects and ids within a stage
      */

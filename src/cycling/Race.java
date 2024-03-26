@@ -3,6 +3,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.time.LocalTime;
 /**
  * Race stores information regarding a race
  * such as stages and the properties associated with it
@@ -18,6 +19,8 @@ public class Race {
     private String name;
     private String description;
     private Map<Integer, Stage> stages = new HashMap<Integer, Stage>();
+    @SuppressWarnings("unused")
+    private Map<LocalTime, Integer> adjustedTimes = new HashMap<LocalTime, Integer>();
 
     /**
      * Constructs a new race with the provided parameters. It will
@@ -59,6 +62,21 @@ public class Race {
      */
     public String getDescription() {
         return this.description;
+    }
+    /**
+     * Adds an adjusted race finish time for a rider
+     * @param time The time they finished in
+     * @param riderId The id of the rider
+     */
+    public void addAdjustedTime(LocalTime time, int riderId) {
+        this.adjustedTimes.put(time, riderId);
+    }
+    /**
+     * Gets the adjusted times of a race
+     * @return The adjusted times of the race
+     */
+    public Map<LocalTime, Integer> getAdjustedTimes() {
+        return this.adjustedTimes;
     }
     /**
      * Creates a new stage with the given parameters.
