@@ -1,10 +1,13 @@
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 
 import cycling.CheckpointType;
 import cycling.CyclingPortalImpl;
+import cycling.DuplicatedResultException;
 import cycling.IDNotRecognisedException;
 import cycling.IllegalNameException;
+import cycling.InvalidCheckpointTimesException;
 import cycling.InvalidLengthException;
 import cycling.InvalidLocationException;
 import cycling.InvalidNameException;
@@ -90,7 +93,7 @@ public class CyclingPortalTestApp {
 			// portal1.addStageToRace(raceId1, "stageName 3", "stageDesc3", 25.0, LocalDateTime.now(), StageType.FLAT); -> InvalidNameException
 			portal1.addStageToRace(raceId1, "stageName3", "stageDesc3", 25, LocalDateTime.now().plusHours(5), StageType.FLAT); //TODO: int makes no difference to length?
 			portal1.addStageToRace(raceId1, "stageName4", "stageDesc4", 25.0, LocalDateTime.now().plusHours(6), StageType.FLAT);
-
+			portal1.addStageToRace(raceId1, "stageName5", "stageDesc5", 25.0, LocalDateTime.now().plusHours(7), StageType.HIGH_MOUNTAIN);
 		} catch(IDNotRecognisedException e) {
 			e.printStackTrace();
 		} catch(InvalidNameException e) {
@@ -104,7 +107,7 @@ public class CyclingPortalTestApp {
 		try {
 			// int stagesNo = portal1.getNumberOfStages(raceId0); -> IDNotRecognisedException
 			int stagesNo = portal1.getNumberOfStages(raceId1);
-			assert (stagesNo == 4)
+			assert (stagesNo == 5)
 			: "stages per race not calculated/ stored correctly";
 		} catch(IDNotRecognisedException e) {
 			e.printStackTrace();
@@ -154,7 +157,7 @@ public class CyclingPortalTestApp {
 			portal1.addCategorizedClimbToStage(stageId, 15.0, CheckpointType.C1, 5.0, 2.0);
 			int stageId2 = portal1.getRaceStages(raceId1)[1];
 			// portal1.addCategorizedClimbToStage(stageId2, 14.0, CheckpointType.C1, 5.0, 2.0); -> InvalidStageTypeException
-			portal1.concludeStagePreparation(stageId2);	
+			portal1.concludeStagePreparation(stageId2);
 			// portal1.addCategorizedClimbToStage(stageId2, 11.0, CheckpointType.C1, 5.0, 2.0); ->InvalidStageStateException
 		} catch(IDNotRecognisedException e) {
 			e.printStackTrace();
@@ -219,7 +222,6 @@ public class CyclingPortalTestApp {
 			int[] stages = portal1.getRaceStages(raceId1);
 			for (int id: stages) {
 				System.out.println(id);
-				
 				int[] checkpoints = portal1.getStageCheckpoints(id);
 				for(int cpid: checkpoints) {
 					System.out.println(cpid);
@@ -263,16 +265,104 @@ public class CyclingPortalTestApp {
 			portal1.createRider(teamId1, "rider2", 2000);
 			portal1.createRider(teamId1, "rider3", 2000);
 			portal1.createRider(teamId1, "rider4", 2000);
-			// System.out.println(portal1.getTeamRiders(teamId0)); -?IDNotRecognisedException
+			// System.out.println(portal1.getTeamRiders(teamId0)); -> IDNotRecognisedException
 			int[] riders = portal1.getTeamRiders(teamId1);
 			for(int r: riders) {
 				System.out.println(r);
 			}
 			portal1.removeRider(riders[0]); //TODO: NullPointerException in removeRider() - FIXED
 			System.out.println(portal1.toString());
+			int[] ridersAfter = portal1.getTeamRiders(teamId1);
+			for(int r: ridersAfter) {
+				System.out.println(r);
+			}
 		} catch(IDNotRecognisedException e) {
 			e.printStackTrace();
 		}
 
+		System.out.println("adding rider results to stages: ");
+		try {
+			int[] riders = portal1.getTeamRiders(teamId1);
+			int[] stages = portal1.getRaceStages(raceId1);
+			portal1.concludeStagePreparation(stages[3]);
+			int x = 1;
+			for(int r: riders) {
+				// System.out.println(r + "\n");
+				for(int i=0; i<stages.length; i++) {
+					// System.out.println(stages[i]);
+					if(i==0){
+						// LocalTime[] times = {LocalTime.now(), LocalTime.now().plusMinutes(1+x), LocalTime.now().plusMinutes(2+x)}; -> InvalidCheckpointTimesException
+						LocalTime[] times = {LocalTime.now(), LocalTime.now().plusMinutes(1+x), LocalTime.now().plusMinutes(2+x), LocalTime.now().plusMinutes(3+x)};
+						// portal1.registerRiderResultsInStage(stages[3], r, times); -> InvalidStageStateException
+						// portal1.registerRiderResultsInStage(stages[0], raceId0, times); -> IDNotRecognisedException
+						// portal1.registerRiderResultsInStage(raceId0, r, times); -> IDNotRecognisedException
+						portal1.registerRiderResultsInStage(stages[i], r, times); //TODO: does removeRider() actually remove from usedRiderIds()
+						// portal1.registerRiderResultsInStage(s, r, times); -> DuplicateResultException
+					}else if(i==1) {
+						LocalTime[] times = {LocalTime.now(), LocalTime.now().plusMinutes(1+x)};
+						portal1.registerRiderResultsInStage(stages[i], r, times);
+					}else if(i==2) {
+						LocalTime[] times = {LocalTime.now(), LocalTime.now().plusMinutes(1+x)};
+						portal1.registerRiderResultsInStage(stages[i], r, times);
+					}else if(i==3) {
+						LocalTime[] times = {LocalTime.now(), LocalTime.now().plusMinutes(1+x)};
+						portal1.registerRiderResultsInStage(stages[i], r, times);
+					}
+				}
+				// System.out.println("\n");
+				x++;
+			}
+		} catch(IDNotRecognisedException e) {
+			e.printStackTrace();
+		} catch(InvalidStageStateException e) {
+			e.printStackTrace();
+		} catch(DuplicatedResultException e) {
+			e.printStackTrace();
+		} catch(InvalidCheckpointTimesException e) {
+			e.printStackTrace();
+		}
+
+		try {
+			int[] riders = portal1.getTeamRiders(teamId1);
+			int[] stages = portal1.getRaceStages(raceId1);
+			for(int r: riders) {
+				System.out.println(r);
+				for(int s: stages) {
+					System.out.println(s);
+					LocalTime[] times = portal1.getRiderResultsInStage(s, r);
+					for(LocalTime t: times) {
+						System.out.println(t);
+					}
+					System.out.println();
+				}
+			}
+		} catch(IDNotRecognisedException e) {
+			e.printStackTrace();
+		}
+
+		try {
+			System.out.println("before removing rider:");
+			System.out.println(portal1.toString());
+			int[] riders = portal1.getTeamRiders(teamId1);
+			portal1.removeRider(riders[0]);
+			System.out.println("after removing rider: ");
+			System.out.println(portal1.toString());
+			int[] ridersAfter = portal1.getTeamRiders(teamId1);
+			int[] stages = portal1.getRaceStages(raceId1);
+			for(int r: ridersAfter) {
+				System.out.println(r);
+				for(int s: stages) {
+					System.out.println(s);
+					LocalTime[] times = portal1.getRiderResultsInStage(s, r);
+					for(LocalTime t: times) {
+						System.out.println(t);
+					}
+					System.out.println();
+				}
+			}
+		} catch(IDNotRecognisedException e) {
+			e.printStackTrace();
+		}
+		
 	}
 }
