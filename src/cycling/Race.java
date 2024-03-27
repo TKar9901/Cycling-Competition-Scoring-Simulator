@@ -1,6 +1,7 @@
 package cycling;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.time.LocalTime;
@@ -20,8 +21,12 @@ public class Race {
     private String description;
     private Map<Integer, Stage> stages;
     private Map<LocalTime, Integer> adjustedTimes;
+    //Rider ID is key
     private Map<Integer, Integer> sprinterPoints;
     private Map<Integer, Integer> mountainPoints;
+    //Points are the key
+    private Map<Integer, Integer> sprinterClassification;
+    private Map<Integer, Integer> mountainClassification;
     /**
      * Constructs a new race with the provided parameters. It will
      * also generate a unique random ID for the race.
@@ -45,6 +50,8 @@ public class Race {
         this.adjustedTimes = new HashMap<LocalTime, Integer>();
         this.sprinterPoints = new HashMap<Integer, Integer>();
         this.mountainPoints = new HashMap<Integer, Integer>();
+        this.sprinterClassification = new HashMap<Integer, Integer>();
+        this.mountainClassification = new HashMap<Integer, Integer>();
     }
     /**
      * Gets the id of a race
@@ -66,6 +73,20 @@ public class Race {
      */
     public String getDescription() {
         return this.description;
+    }
+    /**
+     * Gets the sprinter classification map of a race
+     * @return The sprinter classfication map of a race
+     */
+    public Map<Integer, Integer> getSprinterClassification() {
+        return this.sprinterClassification;
+    }
+    /**
+     * Gets the mountain calssification map of a race
+     * @return The mountain classifcaiton map of a race
+     */
+    public Map<Integer, Integer> getMountainClassification() {
+        return this.mountainClassification;
     }
     /**
      * Adds an adjusted race finish time for a rider
@@ -90,12 +111,14 @@ public class Race {
         //Initalizing each riders points at 0 to avoid null access errors
         for(int i=0; i<riders.size(); i++) {
             mountainPoints.put(riders.get(i).getId(), 0);
+            mountainClassification.put(0, riders.get(i).getId());
         }
         //Adding the points for each rider for each stage in the race
         for(int i=0; i<stages.size(); i++) {
             for(int j=0; j<riders.size(); j++) {
                 mountainPoints.put(riders.get(j).getId(), mountainPoints.get(j)
                  + stages.get(i).getRiderMountainPoints(riders.get(j).getId()));
+                mountainClassification.put(mountainPoints.get(j), riders.get(j).getId());
             }
         }
         return mountainPoints;
@@ -104,15 +127,35 @@ public class Race {
         //Initalizing each riders points at 0 to avoid null access errors
         for(int i=0; i<riders.size(); i++) {
             sprinterPoints.put(riders.get(i).getId(), 0);
+            sprinterClassification.put(0, riders.get(i).getId());
         }
         //Adding the points for each rider for each stage in the race
         for(int i=0; i<stages.size(); i++) {
             for(int j=0; j<riders.size(); j++) {
                 sprinterPoints.put(riders.get(j).getId(), sprinterPoints.get(j)
                  + stages.get(i).getRiderSprinterPoints(riders.get(j).getId()));
+                sprinterClassification.put(sprinterPoints.get(j), riders.get(j).getId());
             }
         }
         return sprinterPoints;
+    }
+    /**
+     * Creates an array of the sprinter points for a race sorted
+     * @return The array of the sprinter points for the race sorted
+     */
+    public ArrayList<Integer> sprinterPointsSorted() {
+        ArrayList<Integer> sortedPoints = new ArrayList<>(this.sprinterPoints.values());
+        Collections.sort(sortedPoints);
+        return sortedPoints;
+    }
+    /**
+     * Creates an array of the mountain points for a race sorted
+     * @return The array of the mountain points for the race sorted
+     */
+    public ArrayList<Integer> mountainPointsSorted() {
+        ArrayList<Integer> sortedPoints = new ArrayList<>(this.mountainPoints.values());
+        Collections.sort(sortedPoints);
+        return sortedPoints;
     }
     /**
      * Creates a new stage with the given parameters.

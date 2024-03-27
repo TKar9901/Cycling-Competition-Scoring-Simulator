@@ -14,11 +14,9 @@ import java.time.Duration;
 import java.lang.Double;
 
 /*TODO
- * UML Diagram - Tamanna
+ * UML Diagram - Tamanna -- will need further updates, but shouldn't change from this point onwards.
  * Development Log - Jake
  * Writing more basic tests - Tamanna
- * Mountain and Sprint points per stage
- * Mountain and Sprint points per race
  */
 
 /**
@@ -1134,7 +1132,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined race.");
 		}
 		Race race = races.get(raceId);
-		//Testing for the case where no stages have any resultls
+		//Testing for the case where no stages have any results
 		for(int i=0; i<race.getStages().size(); i++) {
 			if(race.getStages().get(usedStageIds.get(i)).getRiderPositions().size() > 0) {
 				break;
@@ -1174,9 +1172,24 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(found == false) {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined race.");
 		}
+		Race race = races.get(raceId);
+		//Testing for the case where no stages have any results
+		for(int i=0; i<race.getStages().size(); i++) {
+			if(race.getStages().get(usedStageIds.get(i)).getRiderPositions().size() > 0) {
+				break;
+			}
+			else if(i==race.getStages().size()-1) {
+				return new int[] {};
+			}
+		}
 
-		//TODO this function
-		return null;
+		ArrayList<Integer> sortedPoints = races.get(raceId).sprinterPointsSorted();
+		Map<Integer, Integer> sprinterMap = races.get(raceId).getSprinterClassification();
+		int[] sprinterClassification = new int[sortedPoints.size()];
+		for(int i=0; i<sortedPoints.size(); i++) {
+			sprinterClassification[i] = sprinterMap.get(sortedPoints.get(i));
+		}
+		return sprinterClassification;
 	}
 	/**
 	 * Get the ranked list of riders based on the mountain classification in a race.
@@ -1200,9 +1213,23 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(found == false) {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined race.");
 		}
-
-		//TODO this function
-		return null;
+		Race race = races.get(raceId);
+		//Testing for the case where no stages have any results
+		for(int i=0; i<race.getStages().size(); i++) {
+			if(race.getStages().get(usedStageIds.get(i)).getRiderPositions().size() > 0) {
+				break;
+			}
+			else if(i==race.getStages().size()-1) {
+				return new int[] {};
+			}
+		}
+		ArrayList<Integer> sortedPoints = races.get(raceId).mountainPointsSorted();
+		Map<Integer, Integer> mountainMap = races.get(raceId).getMountainClassification();
+		int[] mountainClassification = new int[sortedPoints.size()];
+		for(int i=0; i<sortedPoints.size(); i++) {
+			mountainClassification[i] = mountainMap.get(sortedPoints.get(i));
+		}
+		return mountainClassification;
 	}
 
 }
