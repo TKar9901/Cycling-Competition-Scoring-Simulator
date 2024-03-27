@@ -179,6 +179,7 @@ public class Stage {
      * @return The Map of riderIds and their newly adjusted times for this stage
      */
     public Map<Integer, LocalTime> adjustTimes(int index) {
+        System.out.println(riderPositions.size());
         LocalTime currTime = riderTimes.get(riderPositions.get(index))[riderTimes.size()-1];
         LocalTime nextTime = riderTimes.get(riderPositions.get(index+1))[riderTimes.size()-1];
         if(adjustedTimes.isEmpty()) {

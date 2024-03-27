@@ -292,7 +292,7 @@ public class CyclingPortalTestApp {
 					// System.out.println(stages[i]);
 					if(i==0){
 						// LocalTime[] times = {LocalTime.now(), LocalTime.now().plusMinutes(1+x), LocalTime.now().plusMinutes(2+x)}; -> InvalidCheckpointTimesException
-						LocalTime[] times = {LocalTime.now(), LocalTime.now().plusMinutes(1+x), LocalTime.now().plusMinutes(2+x), LocalTime.now().plusMinutes(3+x)};
+						LocalTime[] times = {LocalTime.now(), LocalTime.now().plusMinutes(1+x), LocalTime.now().plusMinutes(2+x), LocalTime.now().plusMinutes(3+x).minusNanos(x)};
 						// portal1.registerRiderResultsInStage(stages[3], r, times); -> InvalidStageStateException
 						// portal1.registerRiderResultsInStage(stages[0], raceId0, times); -> IDNotRecognisedException
 						// portal1.registerRiderResultsInStage(raceId0, r, times); -> IDNotRecognisedException
@@ -364,24 +364,100 @@ public class CyclingPortalTestApp {
 			e.printStackTrace();
 		}
 
+		// try {
+		// 	int[] stages = portal1.getRaceStages(raceId1);
+		// 	System.out.println("before removing rider results:");
+		// 	int[] riders = portal1.getTeamRiders(teamId1);
+		// 	for(int r: riders) {
+		// 		System.out.println(r);
+		// 		for(int s: stages) {
+		// 			System.out.println(s);
+		// 			LocalTime[] times = portal1.getRiderResultsInStage(s, r);
+		// 			for(LocalTime t: times) {
+		// 				System.out.println(t);
+		// 			}
+		// 			System.out.println();
+		// 		}
+		// 	}
+		// 	// portal1.deleteRiderResultsInStage(teamId0, riders[0]); -> IDNotRecognisedException
+		// 	// portal1.deleteRiderResultsInStage(stages[0], teamId1); -> IDNotRecognisedException
+		// 	portal1.deleteRiderResultsInStage(stages[0], riders[0]);
+		// 	System.out.println("after removing rider results: ");
+		// 	int[] ridersAfter = portal1.getTeamRiders(teamId1);
+		// 	for(int r: ridersAfter) {
+		// 		System.out.println(r);
+		// 		for(int s: stages) {
+		// 			System.out.println(s);
+		// 			LocalTime[] times = portal1.getRiderResultsInStage(s, r);
+		// 			if(times != null) {
+		// 				for(LocalTime t: times) {
+		// 					System.out.println(t);
+		// 				}
+		// 			}else{
+		// 				System.out.println("null");
+		// 			}
+		// 			System.out.println();
+		// 		}
+		// 	}
+
+		// } catch(IDNotRecognisedException e) {
+		// 	e.printStackTrace();
+		// }
+
+		System.out.println("-------------------------------------------------------");
+
 		try {
+			int r = portal1.createRider(teamId1, "rider5",2003);
 			int[] stages = portal1.getRaceStages(raceId1);
-			System.out.println("before removing rider results:");
-			int[] riders = portal1.getTeamRiders(teamId1);
-			for(int r: riders) {
-				System.out.println(r);
+			int x = 5;
+			for(int i=0; i<stages.length; i++) {
+				// System.out.println(stages[i]);
+				if(i==0){
+					LocalTime[] times = {LocalTime.now(), LocalTime.now().plusMinutes(1+x), LocalTime.now().plusMinutes(2+x), LocalTime.now().plusMinutes(3+x)};
+					portal1.registerRiderResultsInStage(stages[i], r, times);
+				}else if(i==1) {
+					LocalTime[] times = {LocalTime.now(), LocalTime.now().plusMinutes(1+x)};
+					portal1.registerRiderResultsInStage(stages[i], r, times);
+				}else if(i==2) {
+					LocalTime[] times = {LocalTime.now(), LocalTime.now().plusMinutes(1+x)};
+					portal1.registerRiderResultsInStage(stages[i], r, times);
+				}else if(i==3) {
+					LocalTime[] times = {LocalTime.now(), LocalTime.now().plusMinutes(1+x)};
+					portal1.registerRiderResultsInStage(stages[i], r, times);
+				}
 			}
-			portal1.deleteRiderResultsInStage(teamId0, riders[0]);
-			portal1.deleteRiderResultsInStage(stages[0], teamId1);
-			portal1.deleteRiderResultsInStage(stages[0], riders[0]);
-			System.out.println("after removing rider results: ");
-			int[] ridersAfter = portal1.getTeamRiders(teamId1);
-			for(int r: ridersAfter) {
-				System.out.println(r);
+			int[] riders = portal1.getTeamRiders(teamId1);
+			System.out.println("stage: " + stages[0]);
+			for(int r2: riders) {
+				System.out.println("rider " + r2);
+				// for(int s: stages) {
+				// 	System.out.println(s);
+				// 	LocalTime[] times = portal1.getRiderResultsInStage(s, r2);
+				// 	for(LocalTime t: times) {
+				// 		System.out.println(t);
+				// 	}
+				// 	System.out.println();
+				// }
+				LocalTime[] times = portal1.getRiderResultsInStage(stages[0], r2);
+				for(LocalTime t: times) {
+					System.out.println(t);
+				}
+			}
+			
+			System.out.println("results: ");
+			LocalTime[] results = portal1.getRankedAdjustedElapsedTimesInStage(stages[0]);
+			for(LocalTime l: results) {
+				System.out.println(l);
 			}
 		} catch(IDNotRecognisedException e) {
 			e.printStackTrace();
-		} 
+		} catch(InvalidStageStateException e) {
+			e.printStackTrace();
+		} catch(DuplicatedResultException e) {
+			e.printStackTrace();
+		} catch(InvalidCheckpointTimesException e) {
+			e.printStackTrace();
+		}
 		
 		
 	}

@@ -312,8 +312,10 @@ public class CyclingPortalImpl implements CyclingPortal {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined stage.");
 		}
 		usedStageIds.remove(index);
+		
 		Race race = Race.findStagesRace(stageId, races);
 		race.getStages().remove(stageId);
+		System.out.println(stageId);
 		race.getOrderedStageIds().remove(race.getOrderedStageIds().indexOf(stageId));
 		
 	}
@@ -728,26 +730,27 @@ public class CyclingPortalImpl implements CyclingPortal {
 		//Insert the rider id at the appropriate position on the stages leaderboard
 		int[] stagePositions = Race.findStage(stageId, races).getRiderPositions().stream().mapToInt(Integer::intValue).toArray();
 		Map<Integer, LocalTime[]> riderTimes = Race.findStage(stageId, races).getRiderTimes();
-		for(int i=0; i<stagePositions.length; i++) {
-			LocalTime currentRacersFinish = riderTimes.get(stagePositions[i])[riderTimes.get(stagePositions[i]).length-1];
-			//In the case it is the first result place it in
-			if(stagePositions.length == 0) {
-				Race.findStage(stageId, races).getRiderPositions().add(riderId);
-				break;
+		if(stagePositions.length != 0) {
+			for(int i=0; i<stagePositions.length; i++) {
+				//In the case it is the first result place it in
+				LocalTime currentRacersFinish = riderTimes.get(stagePositions[i])[riderTimes.get(stagePositions[i]).length-1];
+				//In the case it is faster than an index or the same speed place it before
+				if(checkpoints[checkpoints.length-1].compareTo(currentRacersFinish)
+				==-1 || checkpoints[checkpoints.length-1].compareTo(currentRacersFinish)
+				==0) {
+					Race.findStage(stageId, races).getRiderPositions().add(i-1, riderId);
+					break;
+				}
+				//In the case it is the slowest time yet
+				else if(checkpoints[checkpoints.length-1].compareTo(riderTimes.get(stagePositions[stagePositions.length-1])[checkpoints.length-1])
+				==1) {
+					Race.findStage(stageId, races).getRiderPositions().add(riderId);
+					break;
+				}
+					
 			}
-			//In the case it is faster than an index or the same speed place it before
-			else if(checkpoints[checkpoints.length-1].compareTo(currentRacersFinish)
-			==-1 || checkpoints[checkpoints.length-1].compareTo(currentRacersFinish)
-			==0) {
-				Race.findStage(stageId, races).getRiderPositions().add(i-1, riderId);
-				break;
-			}
-			//In the case it is the slowest time yet
-			else if(checkpoints[checkpoints.length-1].compareTo(riderTimes.get(stagePositions[stagePositions.length-1])[checkpoints.length-1])
-			==1) {
-				Race.findStage(stageId, races).getRiderPositions().add(riderId);
-			}
-				
+		}else{
+			Race.findStage(stageId, races).getRiderPositions().add(riderId);
 		}
 		
 	}
