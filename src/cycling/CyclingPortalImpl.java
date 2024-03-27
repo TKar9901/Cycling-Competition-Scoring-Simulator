@@ -564,7 +564,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined team.");
 		}
 		
-		return teams.get(teamId).getRiders()
+		return teams.get(teamId).getOrderedRiderIds()
 		.stream().mapToInt(Integer::intValue).toArray();
 	}
 	/**

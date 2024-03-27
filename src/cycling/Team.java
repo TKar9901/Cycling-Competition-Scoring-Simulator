@@ -66,7 +66,14 @@ public class Team {
      * Gets the riders inside a team
      * @return The riders in this team
      */
-    public ArrayList<Integer> getRiders() {
+    public Map<Integer, Rider> getRiders() {
+        return this.riders;
+    }
+    /**
+     * Gets the ordered ids of riders inside a team
+     * @return The ordered ids of riders inside this team
+     */
+    public ArrayList<Integer> getOrderedRiderIds() {
         return this.orderedRiderIds;
     }
     /**
@@ -98,7 +105,7 @@ public class Team {
         Team team = new Team();
         int[] teamIds = teams.keySet().stream().mapToInt(Integer::intValue).toArray();
 		for(int i=0; i<teams.size(); i++) {
-			if(teams.get(teamIds[i]).getRiders().contains(riderId)) {
+			if(teams.get(teamIds[i]).getRiders().containsKey(riderId)) {
                 team = teams.get(teamIds[i]);
             }
         }
