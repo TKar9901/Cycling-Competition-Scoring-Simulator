@@ -49,6 +49,18 @@ public class CyclingPortalImpl implements CyclingPortal {
 		this.usedRiderIds = new ArrayList<Integer>();
 	}
 
+	// for testing
+	@Override
+	public String toString() {
+		return "{" +
+            "races='" + this.races + "'" +
+            ", teams='" + this.teams + "'" +
+            ", usedStageIds='" + this.usedStageIds + "'" +
+            ", usedCheckpointIds='" + this.usedCheckpointIds + "'" +
+            ", usedRiderIds='" + this.usedRiderIds + "'" +
+            "}";
+	}
+
 	/**
 	 * Get the races currently created in the platform.
 	 * 

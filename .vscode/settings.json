@@ -1,5 +1,10 @@
 {
     "workbench.colorTheme": "Monokai",
     "docwriter.style": "Javadoc",
-    "docwriter.progress.trackClasses": false
+    "docwriter.progress.trackClasses": false,
+    "java.project.sourcePaths": [
+        "src",
+        "TestSystem"
+    ],
+    "java.project.outputPath": "bin"
 }
