@@ -5,6 +5,13 @@
             "name": "CyclingPortalTestApp",
             "request": "launch",
             "mainClass": "CyclingPortalTestApp",
+            "projectName": "ECM1410-T2CW_1ff12db9"
+        },
+        {
+            "type": "java",
+            "name": "CyclingPortalTestApp",
+            "request": "launch",
+            "mainClass": "CyclingPortalTestApp",
             "projectName": "ECM1410-T2CW_d8dc720a",
             "vmArgs": "-enableassertions"
         }

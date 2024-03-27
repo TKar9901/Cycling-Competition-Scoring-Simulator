@@ -20,6 +20,7 @@ public class Race {
     private String name;
     private String description;
     private Map<Integer, Stage> stages;
+    private ArrayList<Integer> orderedStageIds;
     private Map<LocalTime, Integer> adjustedTimes;
     //Rider ID is key
     private Map<Integer, Integer> sprinterPoints;
@@ -27,6 +28,13 @@ public class Race {
     //Points are the key
     private Map<Integer, Integer> sprinterClassification;
     private Map<Integer, Integer> mountainClassification;
+
+    /**
+     * Constructs an empty temporary race
+     */
+    public Race() {
+
+    }
     /**
      * Constructs a new race with the provided parameters. It will
      * also generate a unique random ID for the race.
@@ -52,6 +60,7 @@ public class Race {
         this.mountainPoints = new HashMap<Integer, Integer>();
         this.sprinterClassification = new HashMap<Integer, Integer>();
         this.mountainClassification = new HashMap<Integer, Integer>();
+        this.orderedStageIds = new ArrayList<Integer>();
     }
     /**
      * Gets the id of a race
@@ -182,8 +191,16 @@ public class Race {
                 used = false;
             }
         }
+        this.orderedStageIds.add(id);
         this.stages.put(id, new Stage(name, description, length, startTime, type, id, this));
         return id;
+    }
+    /**
+     * Gets the ordered stage ids of a race
+     * @return The ordered stage ids of this race
+     */
+    public ArrayList<Integer> getOrderedStageIds() {
+        return this.orderedStageIds;
     }
     /**
      * Gets the riders in a race

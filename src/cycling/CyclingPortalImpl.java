@@ -164,6 +164,14 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(found == false) {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined race.");
 		}
+		Race race = races.get(raceId);
+		for(int i=0; i<race.getStages().size(); i++) {
+			for(int j=0; j<race.getStages().get(i).getCheckpoints().size(); j++) {
+				usedCheckpointIds.remove(usedCheckpointIds.indexOf
+				(race.getStages().get(i).getCheckpoints().get(j).getId()));
+			}
+			usedStageIds.remove(usedStageIds.indexOf(race.getStages().get(i).getId()));
+		}
 		races.remove(raceId);
 	}
 	/**
@@ -258,8 +266,8 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(races.get(raceId).getStages().size() < 1) {
 			return new int[] {};
 		}
-		return races.get(raceId).getStages().keySet()
-		.stream().mapToInt(Integer::intValue).toArray();
+		return races.get(raceId).getOrderedStageIds().stream().mapToInt(
+			Integer::intValue).toArray();
 	}
 	/**
 	 * Gets the length of a stage in a race, in kilometres.
@@ -304,7 +312,13 @@ public class CyclingPortalImpl implements CyclingPortal {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined stage.");
 		}
 		usedStageIds.remove(index);
+		for(int i=0; i<Race.findStagesRace(stageId, races).getOrderedStageIds().size(); i++) {
+			if(Race.findStagesRace(stageId, races).getOrderedStageIds().get(i)==stageId) {
+				Race.findStagesRace(stageId, races).getOrderedStageIds().remove(i);
+			}
+		}
 		Race.findStagesRace(stageId, races).getStages().remove(stageId);
+		
 	}
 	/**
 	 * Adds a climb checkpoint to a stage.
@@ -550,7 +564,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined team.");
 		}
 		
-		return teams.get(teamId).getRiders().keySet()
+		return teams.get(teamId).getRiders()
 		.stream().mapToInt(Integer::intValue).toArray();
 	}
 	/**
@@ -622,8 +636,9 @@ public class CyclingPortalImpl implements CyclingPortal {
 				
 			}
 			//Removes the rider from the team they were in
-			Team.findRider(riderId, teams).getTeam().getRiders().remove(riderId);
+			
 		}
+		Team.findRider(riderId, teams).getTeam().getRiders().remove(riderId);
 		usedRiderIds.remove(index);
 
 	}
@@ -678,7 +693,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 			throw new DuplicatedResultException("You have entered a riderID for which results have already been entered in this stage, ensure you are entering the correct stageID and riderID.");
 		}
 		boolean inOrder = true;
-		for(int i=0; i<checkpoints.length; ++i) {
+		for(int i=0; i<checkpoints.length-1; ++i) {
 			if(checkpoints[i].compareTo(checkpoints[i+1])>0) {
 				inOrder = false;
 			}
@@ -705,7 +720,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 		}
 		//If the rider hasn't been added to the race for the stage, add it
 		ArrayList<Rider> raceRiders = Race.findStagesRace(stageId, races).getRiders();
-		if(!raceRiders.contains(Team.findRider(riderId, teams))) {
+		if(raceRiders != null && !raceRiders.contains(Team.findRider(riderId, teams))) {
 			Race.findStagesRace(stageId, races).getRiders().add(Team.findRider(riderId, teams));
 		}
 		
@@ -1019,12 +1034,23 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(found == false) {
 			throw new NameNotRecognisedException("You have entered an unrecognisable name, ensure the name requested matches a previously defined race.");
 		}
+		
+		Race race = new Race();
 		ArrayList<Race> raceList = new ArrayList<Race>(races.values());
         for(int i=0; i<raceList.size(); i++) {
             if(raceList.get(i).getName().equals(name)) {
-                races.remove(raceList.get(i).getId());
+				race = races.get(raceList.get(i).getId());
             }
         }
+		for(int i=0; i<race.getStages().size(); i++) {
+			for(int j=0; j<race.getStages().get(i).getCheckpoints().size(); j++) {
+				usedCheckpointIds.remove(usedCheckpointIds.indexOf
+				(race.getStages().get(i).getCheckpoints().get(j).getId()));
+			}
+			usedStageIds.remove(usedStageIds.indexOf(race.getStages().get(i).getId()));
+		}
+		races.remove(race.getId());
+		
 	}
 	/**
 	 * Get the general classification times of riders in a race.

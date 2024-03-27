@@ -31,6 +31,7 @@ public class Rider {
         this.name = name;
         this.yearOfBirth = yearOfBirth;
         this.team = team;
+        this.racesEnrolled = new ArrayList<Integer>();
     }
     /**
      * Gets the unique id of a rider

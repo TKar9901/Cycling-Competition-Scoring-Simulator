@@ -1,5 +1,5 @@
 {
-    "workbench.colorTheme": "Default Dark Modern",
+    "workbench.colorTheme": "Monokai",
     "docwriter.style": "Javadoc",
     "docwriter.progress.trackClasses": false,
     "java.project.sourcePaths": [

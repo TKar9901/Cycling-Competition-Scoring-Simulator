@@ -1,6 +1,7 @@
 package cycling;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ArrayList;
 /**
  * Team stores information regarding a team
  * such as riders and the properties associated with it
@@ -15,7 +16,8 @@ public class Team {
     private String name;
     @SuppressWarnings("unused")
     private String description;
-    private Map<Integer, Rider> riders = new HashMap<Integer, Rider>();
+    private Map<Integer, Rider> riders;
+    private ArrayList<Integer> orderedRiderIds;
 
     /**
      * An empty constructor used to make
@@ -43,6 +45,8 @@ public class Team {
         this.id = id;
         this.name = name;
         this.description = description;
+        this.riders = new HashMap<Integer, Rider>();
+        this.orderedRiderIds = new ArrayList<>();
     }
     /**
      * Gets the id of a team
@@ -60,11 +64,10 @@ public class Team {
     }
     /**
      * Gets the riders inside a team
-     * @return A map containing the rider ids and
-     * rider objects for this team
+     * @return The riders in this team
      */
-    public Map<Integer, Rider> getRiders() {
-        return this.riders;
+    public ArrayList<Integer> getRiders() {
+        return this.orderedRiderIds;
     }
     /**
      * Adds a rider to a team
@@ -82,6 +85,7 @@ public class Team {
             }
         }
         this.riders.put(id, new Rider(name, yearOfBirth, id, this));
+        this.orderedRiderIds.add(id);
         return id;
     }
     /**
@@ -94,7 +98,7 @@ public class Team {
         Team team = new Team();
         int[] teamIds = teams.keySet().stream().mapToInt(Integer::intValue).toArray();
 		for(int i=0; i<teams.size(); i++) {
-			if(teams.get(teamIds[i]).getRiders().containsKey(riderId)) {
+			if(teams.get(teamIds[i]).getRiders().contains(riderId)) {
                 team = teams.get(teamIds[i]);
             }
         }

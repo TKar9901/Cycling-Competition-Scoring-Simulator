@@ -10,6 +10,7 @@ import cycling.InvalidLocationException;
 import cycling.InvalidNameException;
 import cycling.InvalidStageStateException;
 import cycling.InvalidStageTypeException;
+import cycling.NameNotRecognisedException;
 import cycling.StageType;
 
 /**
@@ -37,7 +38,6 @@ public class CyclingPortalTestApp {
 			: "cycling portal constructor faulty";
 		assert (portal1.getRaceIds().length == 0)
 			: "race ids not handled correctly upon portal initialisation";
-
 		try {
 			portal1.createRace("raceName1", "raceDesc1");
 			// portal1.createRace("raceName 1", "raceDesc1"); -> InvalidNameException
@@ -49,7 +49,7 @@ public class CyclingPortalTestApp {
 			e.printStackTrace();
 		} catch(IllegalNameException e) {
 			e.printStackTrace();
-		}
+		} 
 		System.out.println("races created.");
 		assert (portal1.getRaceIds().length == 2)
 			: "race ids not handled correctly upon race creation";
@@ -115,7 +115,7 @@ public class CyclingPortalTestApp {
 			// System.out.println(portal1.getRaceStages(raceId0)); -> IDNotRecognisedException
 			int[] stages = portal1.getRaceStages(raceId1);
 			for(int id: stages) {
-				System.out.println(portal1.getStageLength(id)); //TODO: nevermind int length gets converted to double anyways
+				System.out.println(id);
 			}
 		} catch(IDNotRecognisedException e) {
 			e.printStackTrace();
@@ -124,7 +124,7 @@ public class CyclingPortalTestApp {
 		try {
 			System.out.println("compared with race details:");
 			// portal1.viewRaceDetails(raceId0); -> IDNotRecognisedException
-			String details = portal1.viewRaceDetails(raceId1); //TODO: Race.getLength() has nullPointerException - FIXED
+			String details = portal1.viewRaceDetails(raceId1);
 			System.out.println(details);
 		} catch(IDNotRecognisedException e) {
 			e.printStackTrace();
