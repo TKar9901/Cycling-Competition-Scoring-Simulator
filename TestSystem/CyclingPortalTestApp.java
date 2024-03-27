@@ -363,6 +363,26 @@ public class CyclingPortalTestApp {
 		} catch(IDNotRecognisedException e) {
 			e.printStackTrace();
 		}
+
+		try {
+			int[] stages = portal1.getRaceStages(raceId1);
+			System.out.println("before removing rider results:");
+			int[] riders = portal1.getTeamRiders(teamId1);
+			for(int r: riders) {
+				System.out.println(r);
+			}
+			portal1.deleteRiderResultsInStage(teamId0, riders[0]);
+			portal1.deleteRiderResultsInStage(stages[0], teamId1);
+			portal1.deleteRiderResultsInStage(stages[0], riders[0]);
+			System.out.println("after removing rider results: ");
+			int[] ridersAfter = portal1.getTeamRiders(teamId1);
+			for(int r: ridersAfter) {
+				System.out.println(r);
+			}
+		} catch(IDNotRecognisedException e) {
+			e.printStackTrace();
+		} 
+		
 		
 	}
 }
