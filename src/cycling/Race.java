@@ -238,8 +238,10 @@ public class Race {
      */
     public double getLength() {
         double length = 0;
-        for(int i = 0; i<stages.size(); i++) {
-            length = length + stages.get(i).getLength();
+        int[] stageIds = stages.keySet().stream().mapToInt(Integer::intValue).toArray();
+
+        for(int i = 0; i<stageIds.length; i++) {
+            length = length + stages.get(stageIds[i]).getLength();
         }
         return length;
     }

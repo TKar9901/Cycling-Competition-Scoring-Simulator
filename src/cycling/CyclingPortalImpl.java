@@ -14,7 +14,7 @@ import java.time.Duration;
 import java.lang.Double;
 
 /*TODO
- * UML Diagram - Tamanna -- will need further updates, but shouldn't change from this point onwards.
+ * UML Diagram - Tamanna -- done
  * Development Log - Jake
  * Writing more basic tests - Tamanna
  */
@@ -293,15 +293,17 @@ public class CyclingPortalImpl implements CyclingPortal {
 	@Override
 	public void removeStageById(int stageId) throws IDNotRecognisedException {
 		boolean found = false;
+		int index = 0;
 		for(int id: usedStageIds) {
 			if(stageId == id) {
+				index = usedStageIds.indexOf(id);
 				found = true;
 			}
 		}
 		if(found == false) {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined stage.");
 		}
-
+		usedStageIds.remove(index);
 		Race.findStagesRace(stageId, races).getStages().remove(stageId);
 	}
 	/**
@@ -347,8 +349,9 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(Race.findStage(stageId, races).getType() == StageType.TT) {
 			throw new InvalidStageTypeException("You cannot add this checkpoint type to a time trial stage, ensure you have entered the intended stage ID.");
 		}
-		
-		return Race.findStage(stageId, races).addMountainCheckpoint(location, type, averageGradient, length);
+		int cpId = Race.findStage(stageId, races).addMountainCheckpoint(location, type, averageGradient, length);
+		usedCheckpointIds.add(cpId);
+		return cpId;
 	}
 	/**
 	 * Adds an intermediate sprint to a stage.
@@ -387,9 +390,9 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(Race.findStage(stageId, races).getType() == StageType.TT) {
 			throw new InvalidStageTypeException("You cannot add this checkpoint type to a time trial stage, ensure you have entered the intended stage ID.");
 		}
-		int id = Race.findStage(stageId, races).addSprintCheckpoint(location);
-		usedCheckpointIds.add(id);
-		return id;
+		int cpId = Race.findStage(stageId, races).addSprintCheckpoint(location);
+		usedCheckpointIds.add(cpId);
+		return cpId;
 	}
 	/**
 	 * Removes a checkpoint from a stage.
@@ -402,8 +405,10 @@ public class CyclingPortalImpl implements CyclingPortal {
 	@Override
 	public void removeCheckpoint(int checkpointId) throws IDNotRecognisedException, InvalidStageStateException {
 		boolean found = false;
+		int index = 0;
 		for(int id: usedCheckpointIds) {
 			if(checkpointId == id) {
+				index = usedCheckpointIds.indexOf(id);
 				found = true;
 			}
 		}
@@ -413,7 +418,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(Stage.findCheckpointsStage(checkpointId, races, usedStageIds).getState() != "in preparation") {
 			throw new InvalidStageStateException("You can no longer change the details of this stage as preparation phase has already been concluded.");
 		}
-		
+		usedCheckpointIds.remove(index);
 		Stage.findCheckpointsStage(checkpointId, races, usedStageIds).getCheckpoints().remove(checkpointId);
 	}
 	/**
@@ -588,8 +593,10 @@ public class CyclingPortalImpl implements CyclingPortal {
 	@Override
 	public void removeRider(int riderId) throws IDNotRecognisedException {
 		boolean found = false;
+		int index = 0;
 		for(int id: usedRiderIds) {
 			if(riderId == id) {
+				index = usedRiderIds.indexOf(id);
 				found = true;
 			}
 		}
@@ -599,22 +606,25 @@ public class CyclingPortalImpl implements CyclingPortal {
 		
 		//Removes all of a riders scores in the stages they are inside
 		ArrayList<Integer> riderRaces = Team.findRider(riderId, teams).getRacesEnrolled();
-		for(int i=0; i<riderRaces.size(); i++) {
-			for(int j=0; j<races.get((riderRaces.get(i))).getStages().size();j++) {
-				int[] currentRaceStages = races.get((riderRaces.get(i))).getStages().keySet().
-				stream().mapToInt(Integer::intValue).toArray();
-				int currStageId = races.get((riderRaces.get(i))).getStages().get(currentRaceStages[j]).getId();
-				Race.findStage(currStageId, races).getRiderTimes().remove(riderId);
-				Race.findStage(currStageId, races).getRiderPositions().remove(riderId);
-				Race.findStage(currStageId, races).getAdjustedTimes().remove(riderId);
+		if(riderRaces != null) {
+			for(int i=0; i<riderRaces.size(); i++) {
+				for(int j=0; j<races.get((riderRaces.get(i))).getStages().size();j++) {
+					int[] currentRaceStages = races.get((riderRaces.get(i))).getStages().keySet().
+					stream().mapToInt(Integer::intValue).toArray();
+					int currStageId = races.get((riderRaces.get(i))).getStages().get(currentRaceStages[j]).getId();
+					Race.findStage(currStageId, races).getRiderTimes().remove(riderId);
+					Race.findStage(currStageId, races).getRiderPositions().remove(riderId);
+					Race.findStage(currStageId, races).getAdjustedTimes().remove(riderId);
+				}
+				//Removes the rider from the races final elapsed times if it has been calculated
+				races.get((riderRaces.get(i))).getAdjustedTimes().values().remove(riderId);
+				
+				
 			}
-			//Removes the rider from the races final elapsed times if it has been calculated
-			races.get((riderRaces.get(i))).getAdjustedTimes().values().remove(riderId);
-			
-			
+			//Removes the rider from the team they were in
+			Team.findRider(riderId, teams).getTeam().getRiders().remove(riderId);
 		}
-		//Removes the rider from the team they were in
-		Team.findRider(riderId, teams).getTeam().getRiders().remove(riderId);
+		usedRiderIds.remove(index);
 
 	}
 	/**

@@ -325,7 +325,7 @@ public class Stage {
         Stage stage = new Stage();
         int[] raceIds = races.keySet().stream().mapToInt(Integer::intValue).toArray();
         for(int i=0; i<races.size(); i++) {
-            for(int j=0; j<races.get(raceIds[i]).getStages().size(); i++) {
+            for(int j=0; j<races.get(raceIds[i]).getStages().size(); j++) {
                 if(races.get(raceIds[i]).getStages()
                 .get(stageIds.get(j)).getCheckpoints().containsKey(checkpointId)) {
                     stage = races.get(raceIds[i]).getStages().get(stageIds.get(j));
