@@ -24,14 +24,17 @@ public class Stage {
     @SuppressWarnings("unused")
     private String description;
     private StageType type;
-    private Map<Integer, Checkpoint> checkpoints = new HashMap<Integer, Checkpoint>();
+    private Map<Integer, Checkpoint> checkpoints;
     private String state;
-    private Map<Integer, LocalTime[]> riderTimes = new HashMap<Integer, LocalTime[]>();
-    private Map<Integer, LocalTime> adjustedTimes = new HashMap<Integer, LocalTime>();
-    private Map<Integer, Integer> sprinterClassification = new HashMap<Integer, Integer>();
-    private ArrayList<Integer> riderPositions = new ArrayList<Integer>();
-    private ArrayList<Integer> sprintCheckpointIds = new ArrayList<Integer>();
-    private ArrayList<Integer> sprintCheckpointRef = new ArrayList<Integer>();
+    private Map<Integer, LocalTime[]> riderTimes;
+    private Map<Integer, LocalTime> adjustedTimes;
+    private Map<Integer, Integer> sprinterPoints;
+    private Map<Integer, Integer> mountainPoints;
+    private ArrayList<Integer> riderPositions;
+    private ArrayList<Integer> sprintCheckpointIds;
+    private ArrayList<Integer> sprintCheckpointRef;
+    private ArrayList<Integer> mountainCheckpointIds;
+    private ArrayList<Integer> mountainCheckpointRef;
     private static final int[] FLATSTAGEPOINTS = {50,30,20,18,16,14,12,10,8,7,6,5,4,3,2};
     private static final int[] MEDIUMSTAGEPOINTS = {30,25,22,19,17,15,13,11,9,7,6,5,4,3,2};
     private static final int[] HIGHMOUNTAINPOINTS = {20,17,15,13,11,10,9,8,7,6,5,4,3,2,1};
@@ -65,30 +68,72 @@ public class Stage {
         this.type = type;
         this.race = race;
         this.state = "in preparation";
+        this.sprinterPoints = new HashMap<Integer, Integer>();
+        this.mountainPoints = new HashMap<Integer, Integer>();
+        this.riderPositions = new ArrayList<Integer>();
+        this.sprintCheckpointIds = new ArrayList<Integer>();
+        this.sprintCheckpointRef = new ArrayList<Integer>();
+        this.mountainCheckpointIds = new ArrayList<Integer>();
+        this.mountainCheckpointRef = new ArrayList<Integer>();
+        this.riderTimes = new HashMap<Integer, LocalTime[]>();
+        this.adjustedTimes = new HashMap<Integer, LocalTime>();
+        this.checkpoints = new HashMap<Integer, Checkpoint>();
     }
 
-    //Calculate each riders points for the stage for sprinter classification, intermediate sprint checkpoints + stage finish time
+    /**
+     * Calculates the mountain points for every rider in a stage
+     * @return The mountain points for every rider in the stage
+     */
+    public Map<Integer, Integer> getMountainPoints() {
+        //Initalizing each riders points at 0 to avoid null access errors
+        for(int i=0; i< riderPositions.size(); i++) {
+            mountainPoints.put(riderPositions.get(i), 0);
+        }
+        //Adding all results of every rider to each mountain checkpoint
+        for(int i=0; i < mountainCheckpointIds.size(); i++) {
+            for(int j=0; j<riderPositions.size(); j++) {
+                int currRider = riderPositions.get(j);
+                checkpoints.get(mountainCheckpointIds.get(i)).addResult(currRider,
+                riderTimes.get(currRider)[mountainCheckpointRef.get(i)]);
+            }
+        checkpoints.get(mountainCheckpointIds.get(i)).sortResults();
+        
+        //Adding the points for each checkpoint for each rider to their total
+        for(int k=0; k<riderPositions.size(); k++) {
+            int points = checkpoints.get(mountainCheckpointIds.get(i))
+            .getRiderPointReward(riderPositions.get(k));
+            mountainPoints.put(riderPositions.get(k), 
+            riderPositions.get(k) + points);
+            }
+        }
+        
+        return mountainPoints;
+    }
+    /**
+     * Calculates the sprinter points for every rider in a stage
+     * @return The sprinter points for each rider in the stage
+     */
     public Map<Integer, Integer> getSprinterPoints() {
         //Points for the stage itself
         for(int i=0; i<riderPositions.size(); i++) {
             if(i < 15) {
                 switch(this.type) {
                     case StageType.FLAT:
-                        sprinterClassification.put(riderPositions.get(i), FLATSTAGEPOINTS[i]);
+                        sprinterPoints.put(riderPositions.get(i), FLATSTAGEPOINTS[i]);
                         break;
                     case StageType.MEDIUM_MOUNTAIN:
-                        sprinterClassification.put(riderPositions.get(i), MEDIUMSTAGEPOINTS[i]);
+                        sprinterPoints.put(riderPositions.get(i), MEDIUMSTAGEPOINTS[i]);
                         break;
                     case StageType.HIGH_MOUNTAIN:
-                        sprinterClassification.put(riderPositions.get(i), HIGHMOUNTAINPOINTS[i]);
+                        sprinterPoints.put(riderPositions.get(i), HIGHMOUNTAINPOINTS[i]);
                         break;
                     case StageType.TT:
-                        sprinterClassification.put(riderPositions.get(i), TIMETRIALPOINTS[i]);
+                        sprinterPoints.put(riderPositions.get(i), TIMETRIALPOINTS[i]);
                 } 
             }
             //If placing over 15th place, riders are given 0 points for stage finish
             else {
-                sprinterClassification.put(riderPositions.get(i), 0);
+                sprinterPoints.put(riderPositions.get(i), 0);
             }
         }
         //Congregating all rider times for the all the sprint checkpoints in the stage
@@ -104,13 +149,28 @@ public class Stage {
             for(int k=0; k<riderPositions.size(); k++) {
                 int points = checkpoints.get(sprintCheckpointIds.get(i))
                 .getRiderPointReward(riderPositions.get(k));
-                sprinterClassification.put(riderPositions.get(k), 
+                sprinterPoints.put(riderPositions.get(k), 
                 riderPositions.get(k) + points);
             }
         }
-        return sprinterClassification;
+        return sprinterPoints;
     }
-
+    /**
+     * Gets the mountain points for a rider in a stage
+     * @param riderId The unique id of the rider
+     * @return The mountain points for the rider in the stage
+     */
+    public int getRiderMountainPoints(int riderId) {
+        return mountainPoints.get(riderId);
+    }
+    /**
+     * Gets the sprinter points for a rider in a stage
+     * @param riderId The unique id of the rider
+     * @return The sprinter points for the rider in the stage
+     */
+    public int getRiderSprinterPoints(int riderId) {
+        return sprinterPoints.get(riderId);
+    }
     /**
      * Adjusts the times of riders who finish within 1 second
      * of each other to both have the adjusted time that was
@@ -231,6 +291,8 @@ public class Stage {
             }
         }
         this.checkpoints.put(id, new MountainCheckpoint(location, type, gradient, length, id));
+        this.mountainCheckpointIds.add(id);
+        this.mountainCheckpointRef.add(checkpoints.size()-1);
         return id;
     }
     /**

@@ -16,8 +16,8 @@ public class SprintCheckpoint extends Checkpoint{
     private double location;
     private int id;
     private CheckpointType type;
-    private Map<LocalTime, Integer> riderTimes = new HashMap<LocalTime, Integer>();
-    private ArrayList<LocalTime> sortedTimes = new ArrayList<LocalTime>();
+    private Map<LocalTime, Integer> riderTimes;
+    private ArrayList<LocalTime> sortedTimes;
     private static final int[] POINTS = {20,17,15,13,11,10,9,8,7,6,5,4,3,2,1};
 
     /**
@@ -28,6 +28,8 @@ public class SprintCheckpoint extends Checkpoint{
     public SprintCheckpoint(double location, int id) {
         this.id = id;
         this.location = location;
+        this.riderTimes = new HashMap<LocalTime, Integer>();
+        this.sortedTimes = new ArrayList<LocalTime>();
     }
     @Override
     public int getId() {

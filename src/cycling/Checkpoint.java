@@ -1,5 +1,6 @@
 package cycling;
 import java.util.ArrayList;
+import java.util.Map;
 import java.time.LocalTime;;
 
 /**
@@ -12,6 +13,10 @@ public abstract class Checkpoint {
     private int id;
     @SuppressWarnings("unused")
     private CheckpointType type;
+    @SuppressWarnings("unused")
+    private Map<LocalTime, Integer> riderTimes;
+    @SuppressWarnings("unused")
+    private ArrayList<LocalTime> sortedTimes;
 
     /**
      * Gets the id for a checkpoint

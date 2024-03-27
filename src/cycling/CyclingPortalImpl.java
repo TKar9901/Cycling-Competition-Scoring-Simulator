@@ -591,8 +591,6 @@ public class CyclingPortalImpl implements CyclingPortal {
 		}
 		//Removes the rider from the team they were in
 		Team.findRider(riderId, teams).getTeam().getRiders().remove(riderId);
-		
-		//TODO Removes a rider from any checkpoints they're in
 
 	}
 	/**
@@ -671,6 +669,12 @@ public class CyclingPortalImpl implements CyclingPortal {
 				Team.findRider(riderId, teams).getRacesEnrolled().add(Race.findStage(stageId, races).getRace().getId());
 			}
 		}
+		//If the rider hasn't been added to the race for the stage, add it
+		ArrayList<Rider> raceRiders = Race.findStagesRace(stageId, races).getRiders();
+		if(!raceRiders.contains(Team.findRider(riderId, teams))) {
+			Race.findStagesRace(stageId, races).getRiders().add(Team.findRider(riderId, teams));
+		}
+		
 
 		//Insert the rider id at the appropriate position on the stages leaderboard
 		int[] stagePositions = Race.findStage(stageId, races).getRiderPositions().stream().mapToInt(Integer::intValue).toArray();
@@ -911,9 +915,8 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(Race.findStage(stageId, races).getRiderTimes().size()<1) {
 			return new int[] {};
 		}
-
-		//TODO this function
-		return null;
+		return Race.findStage(stageId, races).
+		getMountainPoints().values().stream().mapToInt(Integer::intValue).toArray();
 	}
 
 	/**
@@ -999,7 +1002,6 @@ public class CyclingPortalImpl implements CyclingPortal {
 	 * @throws IDNotRecognisedException If the ID does not match any race in the
 	 *                                  system.
 	 */
-	//TODO add the empty list return
 	@Override
 	public LocalTime[] getGeneralClassificationTimesInRace(int raceId) throws IDNotRecognisedException {
 		boolean found = false;
@@ -1011,8 +1013,17 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(found == false) {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined race.");
 		}
-		
+
 		Race race = races.get(raceId);
+		//Testing for the case where no stages have any results
+		for(int i=0; i<race.getStages().size(); i++) {
+			if(race.getStages().get(usedStageIds.get(i)).getRiderPositions().size() > 0) {
+				break;
+			}
+			else if(i==race.getStages().size()-1){
+				return new LocalTime[] {};
+			}
+		}
 		LocalTime[] generalClassificationTimes = new LocalTime[race.getRiders().size()];
 		int[] allStages = race.getStages().keySet().stream().mapToInt(Integer::intValue).toArray();
 		LocalTime currentRiderTime;
@@ -1050,8 +1061,23 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(found == false) {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined race.");
 		}
-		//TODO this function
-		return null;
+		Race race = races.get(raceId);
+		for(int i=0; i<race.getStages().size(); i++) {
+			if(race.getStages().get(usedStageIds.get(i)).getRiderPositions().size() > 0) {
+				break;
+			}
+			else if(i==race.getStages().size()-1){
+				return new int[] {};
+			}
+		}
+		int[] generalClassificationRanks = getRidersGeneralClassificationRank(raceId);
+		Map<Integer, Integer> sprinterPoints = new HashMap<>(races.get(raceId).
+		getSprinterPoints());
+		int[] sortedPoints = new int[generalClassificationRanks.length];
+		for(int i=0; i<sortedPoints.length; i++) {
+			sortedPoints[i] = sprinterPoints.get(generalClassificationRanks[i]);
+		}
+		return sortedPoints;
 	}
 	/**
 	 * Get the overall mountain points of riders in a race.
@@ -1075,9 +1101,16 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(found == false) {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined race.");
 		}
-		//TODO this function
-		return null;
+		int[] generalClassificationRanks = getRidersGeneralClassificationRank(raceId);
+		Map<Integer, Integer> mountainPoints = new HashMap<>(races.get(raceId).
+		getMountainPoints());
+		int[] sortedPoints = new int[generalClassificationRanks.length];
+		for(int i=0; i<sortedPoints.length; i++) {
+			sortedPoints[i] = mountainPoints.get(generalClassificationRanks[i]);
+		}
+		return sortedPoints;
 	}
+
 	/**
 	 * Get the general classification rank of riders in a race.
 	 * 
@@ -1089,7 +1122,6 @@ public class CyclingPortalImpl implements CyclingPortal {
 	 * @throws IDNotRecognisedException If the ID does not match any race in the
 	 *                                  system.
 	 */
-	//TODO add the empty list return
 	@Override
 	public int[] getRidersGeneralClassificationRank(int raceId) throws IDNotRecognisedException {
 		boolean found = false;
@@ -1100,6 +1132,16 @@ public class CyclingPortalImpl implements CyclingPortal {
 		}
 		if(found == false) {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined race.");
+		}
+		Race race = races.get(raceId);
+		//Testing for the case where no stages have any resultls
+		for(int i=0; i<race.getStages().size(); i++) {
+			if(race.getStages().get(usedStageIds.get(i)).getRiderPositions().size() > 0) {
+				break;
+			}
+			else if(i==race.getStages().size()-1) {
+				return new int[] {};
+			}
 		}
 		LocalTime[] keys = getGeneralClassificationTimesInRace(raceId);
 		int[] generalClassificationRanks = new int[keys.length];

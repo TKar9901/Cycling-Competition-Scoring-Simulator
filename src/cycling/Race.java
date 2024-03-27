@@ -18,9 +18,10 @@ public class Race {
     private ArrayList<Rider> riders;
     private String name;
     private String description;
-    private Map<Integer, Stage> stages = new HashMap<Integer, Stage>();
-    private Map<LocalTime, Integer> adjustedTimes = new HashMap<LocalTime, Integer>();
-
+    private Map<Integer, Stage> stages;
+    private Map<LocalTime, Integer> adjustedTimes;
+    private Map<Integer, Integer> sprinterPoints;
+    private Map<Integer, Integer> mountainPoints;
     /**
      * Constructs a new race with the provided parameters. It will
      * also generate a unique random ID for the race.
@@ -40,6 +41,10 @@ public class Race {
         this.name = name;
         this.description = description;
         this.id = id;
+        this.stages = new HashMap<Integer, Stage>();
+        this.adjustedTimes = new HashMap<LocalTime, Integer>();
+        this.sprinterPoints = new HashMap<Integer, Integer>();
+        this.mountainPoints = new HashMap<Integer, Integer>();
     }
     /**
      * Gets the id of a race
@@ -76,6 +81,38 @@ public class Race {
      */
     public Map<LocalTime, Integer> getAdjustedTimes() {
         return this.adjustedTimes;
+    }
+    /**
+     * Gets the mountain points for every rider in a race
+     * @return The mountain points for every rider in the race
+     */
+    public Map<Integer, Integer> getMountainPoints() {
+        //Initalizing each riders points at 0 to avoid null access errors
+        for(int i=0; i<riders.size(); i++) {
+            mountainPoints.put(riders.get(i).getId(), 0);
+        }
+        //Adding the points for each rider for each stage in the race
+        for(int i=0; i<stages.size(); i++) {
+            for(int j=0; j<riders.size(); j++) {
+                mountainPoints.put(riders.get(j).getId(), mountainPoints.get(j)
+                 + stages.get(i).getRiderMountainPoints(riders.get(j).getId()));
+            }
+        }
+        return mountainPoints;
+    }
+    public Map<Integer, Integer> getSprinterPoints() {
+        //Initalizing each riders points at 0 to avoid null access errors
+        for(int i=0; i<riders.size(); i++) {
+            sprinterPoints.put(riders.get(i).getId(), 0);
+        }
+        //Adding the points for each rider for each stage in the race
+        for(int i=0; i<stages.size(); i++) {
+            for(int j=0; j<riders.size(); j++) {
+                sprinterPoints.put(riders.get(j).getId(), sprinterPoints.get(j)
+                 + stages.get(i).getRiderSprinterPoints(riders.get(j).getId()));
+            }
+        }
+        return sprinterPoints;
     }
     /**
      * Creates a new stage with the given parameters.
