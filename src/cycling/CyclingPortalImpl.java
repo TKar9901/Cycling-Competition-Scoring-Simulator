@@ -312,11 +312,6 @@ public class CyclingPortalImpl implements CyclingPortal {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined stage.");
 		}
 		usedStageIds.remove(index);
-		for(int i=0; i<Race.findStagesRace(stageId, races).getOrderedStageIds().size(); i++) {
-			if(Race.findStagesRace(stageId, races).getOrderedStageIds().get(i)==stageId) {
-				Race.findStagesRace(stageId, races).getOrderedStageIds().remove(i);
-			}
-		}
 		Race race = Race.findStagesRace(stageId, races);
 		race.getStages().remove(stageId);
 		race.getOrderedStageIds().remove(race.getOrderedStageIds().indexOf(stageId));
@@ -629,7 +624,8 @@ public class CyclingPortalImpl implements CyclingPortal {
 					stream().mapToInt(Integer::intValue).toArray();
 					int currStageId = races.get((riderRaces.get(i))).getStages().get(currentRaceStages[j]).getId();
 					Race.findStage(currStageId, races).getRiderTimes().remove(riderId);
-					Race.findStage(currStageId, races).getRiderPositions().remove(riderId);
+					Race.findStage(currStageId, races).getRiderPositions().remove
+					(Race.findStage(currStageId, races).getRiderPositions().indexOf(riderId));
 					Race.findStage(currStageId, races).getAdjustedTimes().remove(riderId);
 				}
 				//Removes the rider from the races final elapsed times if it has been calculated
@@ -640,7 +636,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 			//Removes the rider from the team they were in
 			
 		}
-		Team team = Team.findRider(riderId, teams).getTeam()
+		Team team = Team.findRider(riderId, teams).getTeam();
 		team.getRiders().remove(riderId);
 		team.getOrderedRiderIds().remove(team.getOrderedRiderIds().indexOf(riderId));
 		usedRiderIds.remove(index);
