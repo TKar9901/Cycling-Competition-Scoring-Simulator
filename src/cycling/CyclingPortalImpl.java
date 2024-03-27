@@ -317,7 +317,9 @@ public class CyclingPortalImpl implements CyclingPortal {
 				Race.findStagesRace(stageId, races).getOrderedStageIds().remove(i);
 			}
 		}
-		Race.findStagesRace(stageId, races).getStages().remove(stageId);
+		Race race = Race.findStagesRace(stageId, races);
+		race.getStages().remove(stageId);
+		race.getOrderedStageIds().remove(race.getOrderedStageIds().indexOf(stageId));
 		
 	}
 	/**
@@ -638,7 +640,9 @@ public class CyclingPortalImpl implements CyclingPortal {
 			//Removes the rider from the team they were in
 			
 		}
-		Team.findRider(riderId, teams).getTeam().getRiders().remove(riderId);
+		Team team = Team.findRider(riderId, teams).getTeam()
+		team.getRiders().remove(riderId);
+		team.getOrderedRiderIds().remove(team.getOrderedRiderIds().indexOf(riderId));
 		usedRiderIds.remove(index);
 
 	}
