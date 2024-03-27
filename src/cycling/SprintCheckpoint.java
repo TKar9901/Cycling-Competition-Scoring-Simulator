@@ -10,6 +10,9 @@ import java.time.LocalTime;
  * class checkpoint and stores information
  * specifically for: {@link CheckpointType#SPRINT}
  * checkpoints
+ * @author Jake Klar
+ * @author Tamanna Kar
+ * @version 2.0
  */
 public class SprintCheckpoint extends Checkpoint{
     @SuppressWarnings("unused")
@@ -22,12 +25,11 @@ public class SprintCheckpoint extends Checkpoint{
 
     /**
      * Creates a new SprintCheckpoint with the given parameters
-     * @param location Where the checkpoint takes place in the stage
-     * @param id The unique id of the checkpoint
+     * @param location Where the checkpoint takes place in this stage
+     * @param id The unique id of this checkpoint
      */
     public SprintCheckpoint(double location, int id) {
-        this.id = id;
-        this.location = location;
+        super(location, id);
         this.riderTimes = new HashMap<LocalTime, Integer>();
         this.sortedTimes = new ArrayList<LocalTime>();
     }

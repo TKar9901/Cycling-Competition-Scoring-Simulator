@@ -27,8 +27,8 @@ public class Team {
     /**
      * Creates a new team with the provided parameters.
      * Also generates a unique random ID for the team.
-     * @param name The name of the team.
-     * @param description The description of the team.
+     * @param name The name of this team.
+     * @param description The description of this team.
      * @param teams The list of all teams in CyclingPortalImpl
      */
     public Team(String name, String description, Map<Integer, Team> teams) {
@@ -46,14 +46,14 @@ public class Team {
     }
     /**
      * Gets the id of a team
-     * @return The unique ID of the team
+     * @return The unique ID of this team
      */
     public int getId() {
         return this.id;
     }
     /**
      * Gets the the name of a team
-     * @return The name of the team
+     * @return The name of this team
      */
     public String getName() {
         return this.name;
@@ -61,7 +61,7 @@ public class Team {
     /**
      * Gets the riders inside a team
      * @return A map containing the rider ids and
-     * rider objects for the team
+     * rider objects for this team
      */
     public Map<Integer, Rider> getRiders() {
         return this.riders;
@@ -70,7 +70,7 @@ public class Team {
      * Adds a rider to a team
      * @param name The name of the rider
      * @param yearOfBirth The year the rider was born
-     * @return The unique ID of the rider added to the team
+     * @return The unique ID of the rider added to this team
      */
     public int addRider(String name, int yearOfBirth) {
         int id = 0;

@@ -29,11 +29,25 @@ import java.lang.Double;
  *
  */
 public class CyclingPortalImpl implements CyclingPortal {
-
+	/**
+	 * Map of races in this portal
+	 */
 	private Map<Integer, Race> races;
+	/**
+	 * Map of teams in this portal
+	 */
 	private Map<Integer, Team> teams;
-	private ArrayList<Integer> usedStageIds; 
+	/**
+	 * List of usedStageIds in this portal
+	 */
+	private ArrayList<Integer> usedStageIds;
+	/**
+	 * List of usedCheckpointIds in this portal
+	 */ 
 	private ArrayList<Integer> usedCheckpointIds;
+	/**
+	 * List of usedRiderIds in this portal
+	 */
 	private ArrayList<Integer> usedRiderIds;
 
 	/**
@@ -537,8 +551,8 @@ public class CyclingPortalImpl implements CyclingPortal {
 	/**
 	 * Creates a rider.
 	 * 
-	 * @param teamID      The ID rider's team.
-	 * @param name        The name of the rider.
+	 * @param teamId The ID rider's team.
+	 * @param name The name of the rider.
 	 * @param yearOfBirth The year of birth of the rider.
 	 * @return The ID of the rider in the system.
 	 * @throws IDNotRecognisedException If the ID does not match to any team in the
@@ -608,7 +622,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 	 * 
 	 * @param stageId     The ID of the stage the result refers to.
 	 * @param riderId     The ID of the rider.
-	 * @param checkpointTimes An array of times at which the rider reached each of the
+	 * @param checkpoints An array of times at which the rider reached each of the
 	 *                    checkpoints of the stage, including the start time and the
 	 *                    finish line.
 	 * @throws IDNotRecognisedException    If the ID does not match to any rider or

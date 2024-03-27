@@ -21,10 +21,10 @@ public class Rider {
     /**
      * Creates a new rider with the given
      * parameters
-     * @param name The name of the rider
-     * @param yearOfBirth The year the rider was born
-     * @param id The unique id of the rider
-     * @param team The team the rider belongs to
+     * @param name The name of this rider
+     * @param yearOfBirth The year this rider was born
+     * @param id The unique id of this rider
+     * @param team The team this rider belongs to
      */
     public Rider(String name, int yearOfBirth, int id, Team team) {
         this.id = id;
@@ -34,14 +34,22 @@ public class Rider {
     }
     /**
      * Gets the unique id of a rider
-     * @return The unique id of a rider
+     * @return The unique id of this rider
      */
     public int getId() {
         return this.id;
     }
+    /**
+     * Gets the list of races a rider is enrolled in
+     * @return The list of races this rider is enrolled in
+     */
     public ArrayList<Integer> getRacesEnrolled() {
         return this.racesEnrolled;
     }
+    /**
+     * Gets the team a rider belongs to
+     * @return The team this rider belongs to
+     */
     public Team getTeam() {
         return this.team;
     }

@@ -55,35 +55,35 @@ public class Race {
     }
     /**
      * Gets the id of a race
-     * @return The id of the race.
+     * @return The id of this race.
      */
     public int getId() {
         return this.id;
     }
     /**
      * Gets the name of a race
-     * @return The name of the race.
+     * @return The name of this race.
      */
     public String getName() {
         return this.name;
     }
     /**
      * Gets the description of a race
-     * @return The description of the race
+     * @return The description of this race
      */
     public String getDescription() {
         return this.description;
     }
     /**
      * Gets the sprinter classification map of a race
-     * @return The sprinter classfication map of a race
+     * @return The sprinter classfication map of this race
      */
     public Map<Integer, Integer> getSprinterClassification() {
         return this.sprinterClassification;
     }
     /**
      * Gets the mountain calssification map of a race
-     * @return The mountain classifcaiton map of a race
+     * @return The mountain classifcaiton map of this race
      */
     public Map<Integer, Integer> getMountainClassification() {
         return this.mountainClassification;
@@ -98,14 +98,14 @@ public class Race {
     }
     /**
      * Gets the adjusted times of a race
-     * @return The adjusted times of the race
+     * @return The adjusted times of this race
      */
     public Map<LocalTime, Integer> getAdjustedTimes() {
         return this.adjustedTimes;
     }
     /**
      * Gets the mountain points for every rider in a race
-     * @return The mountain points for every rider in the race
+     * @return The mountain points for every rider in this race
      */
     public Map<Integer, Integer> getMountainPoints() {
         //Initalizing each riders points at 0 to avoid null access errors
@@ -121,8 +121,12 @@ public class Race {
                 mountainClassification.put(mountainPoints.get(j), riders.get(j).getId());
             }
         }
-        return mountainPoints;
+        return this.mountainPoints;
     }
+    /**
+     * Gets the sprinter points for every rider in a race
+     * @return The sprinter points for every rider in this race
+     */
     public Map<Integer, Integer> getSprinterPoints() {
         //Initalizing each riders points at 0 to avoid null access errors
         for(int i=0; i<riders.size(); i++) {
@@ -137,11 +141,11 @@ public class Race {
                 sprinterClassification.put(sprinterPoints.get(j), riders.get(j).getId());
             }
         }
-        return sprinterPoints;
+        return this.sprinterPoints;
     }
     /**
      * Creates an array of the sprinter points for a race sorted
-     * @return The array of the sprinter points for the race sorted
+     * @return The array of the sprinter points for this race sorted
      */
     public ArrayList<Integer> sprinterPointsSorted() {
         ArrayList<Integer> sortedPoints = new ArrayList<>(this.sprinterPoints.values());
@@ -150,7 +154,7 @@ public class Race {
     }
     /**
      * Creates an array of the mountain points for a race sorted
-     * @return The array of the mountain points for the race sorted
+     * @return The array of the mountain points for this race sorted
      */
     public ArrayList<Integer> mountainPointsSorted() {
         ArrayList<Integer> sortedPoints = new ArrayList<>(this.mountainPoints.values());
@@ -159,15 +163,15 @@ public class Race {
     }
     /**
      * Creates a new stage with the given parameters.
-     * Also generates a unique id for the stage
-     * @param name The name of the stage
-     * @param description The description of the stage
-     * @param Length The distance of the stage
-     * @param startTime The time the stage starts
+     * Also generates a unique id for this stage
+     * @param name The name of this stage
+     * @param description The description of this stage
+     * @param length The distance of this stage
+     * @param startTime The time this stage starts
      * @param type The type of race {@link StageType#FLAT},
      * {@link StageType#MEDIUM_MOUNTAIN}, {@link StageType#HIGH_MOUNTAIN} or
      * {@link StageType#TT}
-     * @return The unique ID of the created stage
+     * @return The unique ID of this created stage
      */
     public int addStage(String name, String description, double length, LocalDateTime startTime, StageType type) {
         int id = 0;
@@ -183,14 +187,14 @@ public class Race {
     }
     /**
      * Gets the riders in a race
-     * @return An ArrayList of rider ids of those competing in the race
+     * @return An ArrayList of rider ids of those competing in this race
      */
     public ArrayList<Rider> getRiders() {
         return this.riders;
     }
     /**
      * Gets the stages in a race
-     * @return A map containing the stage ids and stage objects of those in the race
+     * @return A map containing the stage ids and stage objects of those in this race
      */
     public Map<Integer, Stage> getStages() {
         return this.stages;
@@ -230,7 +234,7 @@ public class Race {
     /**
      * Calculates the length of a race from the length of all
      * its stages
-     * @return The length of the race
+     * @return The length of this race
      */
     public double getLength() {
         double length = 0;
@@ -243,7 +247,7 @@ public class Race {
      * Writes a formatted string containing information about a race
      * @return A formatted string containing the id,
      * name, description, number of stages and 
-     * length of a race
+     * length of this race
      */
     @Override
     public String toString() {
