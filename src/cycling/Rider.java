@@ -11,12 +11,27 @@ import java.io.Serializable;
  * @version 2.0
  */
 public class Rider implements Serializable{
+    /**
+     * The unique id of a rider
+     */
     private int id;
     @SuppressWarnings("unused")
+    /**
+     * The name of a rider
+     */
     private String name;
     @SuppressWarnings("unused")
+    /**
+     * The year of birth of a rider
+     */
     private int yearOfBirth;
+    /**
+     * The team a rider belongs to
+     */
     private Team team;
+    /**
+     * A list of races the rider is apart of
+     */
     private ArrayList<Integer> racesEnrolled;
     /**
      * Creates a new rider with the given

@@ -13,11 +13,26 @@ import java.io.Serializable;
  *
  */
 public class Team implements Serializable{
+    /**
+     * The unique id of a team
+     */
     private int id;
+    /**
+     * The name of a team
+     */
     private String name;
     @SuppressWarnings("unused")
+    /**
+     * The description of a team
+     */
     private String description;
+    /**
+     * A map with riderIds as keys and rider objects as values
+     */
     private Map<Integer, Rider> riders;
+    /**
+     * A list of riderIds ordered by time added
+     */
     private ArrayList<Integer> orderedRiderIds;
 
     /**

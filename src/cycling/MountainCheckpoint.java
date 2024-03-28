@@ -23,6 +23,9 @@ public class MountainCheckpoint extends Checkpoint{
      */
     private double gradient;
     @SuppressWarnings("unused")
+    /**
+     * The location of a mountainCheckpoint in its stage
+     */
     private double location;
     private CheckpointType type;
     @SuppressWarnings("unused")
@@ -30,8 +33,17 @@ public class MountainCheckpoint extends Checkpoint{
      * The length of the climb
      */
     private double length;
+    /**
+     * The unique id of a mountainCheckpoint
+     */
     private int id;
+    /**
+     * A map with mountainCheckpoint passed times as keys and riderIds as values
+     */
     private Map<LocalTime, Integer> riderTimes;
+    /**
+     * A list of mountainCheckpoint passed times sorted by lowest time first
+     */
     private ArrayList<LocalTime> sortedTimes;
     private static final int[] CATFOURPOINTS = {1};
     private static final int[] CATTHREEPOINTS = {2,1};

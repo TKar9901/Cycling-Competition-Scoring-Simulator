@@ -32,14 +32,33 @@ public class Race implements Serializable{
      * The description of a race
      */
     private String description;
+    /**
+     * A map with stageIds as keys and stage objects as values
+     */
     private Map<Integer, Stage> stages;
+    /**
+     * A list of the stageIds by order of creation
+     */
     private ArrayList<Integer> orderedStageIds;
+    /**
+     * A map with elapsed durations as keys and riderIds as values
+     */
     private Map<LocalTime, Integer> adjustedTimes;
-    //Rider ID is key
+    /**
+     * A map with riderIds as keys and sprint points as values
+     */
     private Map<Integer, Integer> sprinterPoints;
+    /**
+     * A map with riderIds as keys and mountain points as values
+     */
     private Map<Integer, Integer> mountainPoints;
-    //Points are the key
+    /**
+     * A map with sprint points as keys and riderIds as values
+     */
     private Map<Integer, Integer> sprinterClassification;
+    /**
+     * A map with mountain points as keys and mountainPoints as values
+     */
     private Map<Integer, Integer> mountainClassification;
 
     /**

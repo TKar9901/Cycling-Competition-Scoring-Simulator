@@ -16,25 +16,79 @@ import java.io.Serializable;
  *
  */
 public class Stage implements Serializable{
+    /**
+     * The unique id of a stage
+     */
     private int id;
+    /**
+     * The name of a stage
+     */
     private String name;
     @SuppressWarnings("unused")
+    /**
+     * The start-time of a stage
+     */
     private LocalDateTime startTime;
+    /**
+     * The length (in km) of a stage
+     */
     private double length;
+    /**
+     * The race a stage belongs to
+     */
     private Race race;
     @SuppressWarnings("unused")
+    /**
+     * The description of a stage
+     */
     private String description;
+    /**
+     * The type of a stage
+     */
     private StageType type;
+    /**
+     * A map with checkpointIds as keys and checkpoint objects as values
+     */
     private Map<Integer, Checkpoint> checkpoints;
+    /**
+     * The state a race is currently in
+     */
     private String state;
+    /**
+     * A map with riderIds as keys and their times for all checkpoints as values
+     */
     private Map<Integer, LocalTime[]> riderTimes;
+    /**
+     * A map with riderIds as keys and their adjusted elapsed time as values
+     */
     private Map<Integer, LocalTime> adjustedTimes;
+    /**
+     * A map with riderIds as keys and their sprint points as values
+     */
     private Map<Integer, Integer> sprinterPoints;
+    /**
+     * A map with riderIds as keys and their mountain points as values
+     */
     private Map<Integer, Integer> mountainPoints;
+    /**
+     * A list of riderIds ordered by finish position
+     */
     private ArrayList<Integer> riderPositions;
+    /**
+     * A list of sprintCheckpointIds
+     */
     private ArrayList<Integer> sprintCheckpointIds;
+    /**
+     * A list of reference indexes for sprintCheckpoints
+     */
     private ArrayList<Integer> sprintCheckpointRef;
+    /**
+     * A list of mountainCheckpointIds
+     */
     private ArrayList<Integer> mountainCheckpointIds;
+    /**
+     * A list of reference indexes for mountainCheckpoints
+     */
     private ArrayList<Integer> mountainCheckpointRef;
     private static final int[] FLATSTAGEPOINTS = {50,30,20,18,16,14,12,10,8,7,6,5,4,3,2};
     private static final int[] MEDIUMSTAGEPOINTS = {30,25,22,19,17,15,13,11,9,7,6,5,4,3,2};
