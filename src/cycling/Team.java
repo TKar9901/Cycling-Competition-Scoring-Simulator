@@ -2,6 +2,7 @@ package cycling;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ArrayList;
+import java.io.Serializable;
 /**
  * Team stores information regarding a team
  * such as riders and the properties associated with it
@@ -11,7 +12,7 @@ import java.util.ArrayList;
  * @version 2.0
  *
  */
-public class Team {
+public class Team implements Serializable{
     private int id;
     private String name;
     @SuppressWarnings("unused")

@@ -18,11 +18,17 @@ import java.util.Map;
  */
 public class MountainCheckpoint extends Checkpoint{
     @SuppressWarnings("unused")
+    /**
+     * The average gradient of the climb
+     */
     private double gradient;
     @SuppressWarnings("unused")
     private double location;
     private CheckpointType type;
     @SuppressWarnings("unused")
+    /**
+     * The length of the climb
+     */
     private double length;
     private int id;
     private Map<LocalTime, Integer> riderTimes;
@@ -32,7 +38,6 @@ public class MountainCheckpoint extends Checkpoint{
     private static final int[] CATTWOPOINTS = {5,3,2,1};
     private static final int[] CATONEPOINTS = {10,8,6,4,2,1};
     private static final int[] CATHORSPOINTS = {20,15,12,10,8,6,4,2};
-
     /**
      * Creates a new MountainCheckpoint with the following parameters
      * @param location Where in the stage this checkpoint is

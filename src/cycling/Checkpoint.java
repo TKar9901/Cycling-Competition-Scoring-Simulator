@@ -1,6 +1,7 @@
 package cycling;
 import java.util.ArrayList;
 import java.util.Map;
+import java.io.Serializable;
 import java.time.LocalTime;;
 
 /**
@@ -11,18 +12,29 @@ import java.time.LocalTime;;
  * @author Tamanna Kar
  * @version 2.0
  */
-public abstract class Checkpoint {
+public abstract class Checkpoint implements Serializable {
     @SuppressWarnings("unused")
+    /**
+     * Unique id of a checkpoint
+     */
     private int id;
     @SuppressWarnings("unused")
+    /**
+     * The location a checkpoint is at in a stage
+     */
     private double location;
     @SuppressWarnings("unused")
+    /**
+     * The type of checkpoint
+     */
     private CheckpointType type;
     @SuppressWarnings("unused")
     private Map<LocalTime, Integer> riderTimes;
+    /**
+     * The sorted times of a checkpoint
+     */
     @SuppressWarnings("unused")
     private ArrayList<LocalTime> sortedTimes;
-
     /**
      * Creates a new checkpoint with the given parameters
      * @param location Where in the stage this checkpoint is

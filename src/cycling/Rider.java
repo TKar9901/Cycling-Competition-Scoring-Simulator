@@ -1,5 +1,6 @@
 package cycling;
 import java.util.ArrayList;
+import java.io.Serializable;
 
 /**
  * Rider stores information regard a rider such
@@ -9,7 +10,7 @@ import java.util.ArrayList;
  * @author Tamanna Kar
  * @version 2.0
  */
-public class Rider {
+public class Rider implements Serializable{
     private int id;
     @SuppressWarnings("unused")
     private String name;
@@ -17,7 +18,6 @@ public class Rider {
     private int yearOfBirth;
     private Team team;
     private ArrayList<Integer> racesEnrolled;
-
     /**
      * Creates a new rider with the given
      * parameters

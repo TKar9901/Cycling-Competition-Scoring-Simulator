@@ -22,7 +22,6 @@ public class SprintCheckpoint extends Checkpoint{
     private Map<LocalTime, Integer> riderTimes;
     private ArrayList<LocalTime> sortedTimes;
     private static final int[] POINTS = {20,17,15,13,11,10,9,8,7,6,5,4,3,2,1};
-
     /**
      * Creates a new SprintCheckpoint with the given parameters
      * @param location Where the checkpoint takes place in this stage

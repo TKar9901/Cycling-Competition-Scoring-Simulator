@@ -13,12 +13,6 @@ import java.util.Map;
 import java.time.Duration;
 import java.lang.Double;
 
-/*TODO
- * UML Diagram - Tamanna -- done
- * Development Log - Jake
- * Writing more basic tests - Tamanna
- */
-
 /**
  * CyclingPortalImpl is a compiling and functioning implementation
  * of the CyclingPortal interface.
@@ -62,19 +56,6 @@ public class CyclingPortalImpl implements CyclingPortal {
 		this.usedCheckpointIds = new ArrayList<Integer>();
 		this.usedRiderIds = new ArrayList<Integer>();
 	}
-
-	// for testing
-	@Override
-	public String toString() {
-		return "{" +
-            "races='" + this.races + "'" +
-            ", teams='" + this.teams + "'" +
-            ", usedStageIds='" + this.usedStageIds + "'" +
-            ", usedCheckpointIds='" + this.usedCheckpointIds + "'" +
-            ", usedRiderIds='" + this.usedRiderIds + "'" +
-            "}";
-	}
-
 	/**
 	 * Get the races currently created in the platform.
 	 * 
@@ -120,7 +101,6 @@ public class CyclingPortalImpl implements CyclingPortal {
 		races.put(id, newRace);
 		return id;
 	}
-
 	/**
 	 * Get the details from a race.
 	 * 
@@ -144,7 +124,6 @@ public class CyclingPortalImpl implements CyclingPortal {
 
 		return races.get(raceId).toString();
 	}
-
 	/**
 	 * The method removes the race and all its related information, i.e., stages,
 	 * checkpoints, and results.
@@ -315,7 +294,6 @@ public class CyclingPortalImpl implements CyclingPortal {
 		
 		Race race = Race.findStagesRace(stageId, races);
 		race.getStages().remove(stageId);
-		System.out.println(stageId);
 		race.getOrderedStageIds().remove(race.getOrderedStageIds().indexOf(stageId));
 		
 	}
@@ -594,7 +572,6 @@ public class CyclingPortalImpl implements CyclingPortal {
 		usedRiderIds.add(id);
 		return id;
 	}
-
 	/**
 	 * Removes a rider from the system. When a rider is removed from the platform,
 	 * all of its results are also removed. Race results are updated to reflect this.
@@ -616,7 +593,6 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(found == false) {
 			throw new IDNotRecognisedException("You have entered an unrecognisable ID, ensure the ID requested matches a previously defined rider.");
 		}
-		
 		//Removes all of a riders scores in the stages they are inside
 		ArrayList<Integer> riderRaces = Team.findRider(riderId, teams).getRacesEnrolled();
 		if(riderRaces != null) {
@@ -624,7 +600,7 @@ public class CyclingPortalImpl implements CyclingPortal {
 				for(int j=0; j<races.get((riderRaces.get(i))).getStages().size();j++) {
 					int[] currentRaceStages = races.get((riderRaces.get(i))).getStages().keySet().
 					stream().mapToInt(Integer::intValue).toArray();
-					int currStageId = races.get((riderRaces.get(i))).getStages().get(currentRaceStages[j]).getId();
+					int currStageId = currentRaceStages[j];
 					Race.findStage(currStageId, races).getRiderTimes().remove(riderId);
 					Race.findStage(currStageId, races).getRiderPositions().remove
 					(Race.findStage(currStageId, races).getRiderPositions().indexOf(riderId));
@@ -632,17 +608,13 @@ public class CyclingPortalImpl implements CyclingPortal {
 				}
 				//Removes the rider from the races final elapsed times if it has been calculated
 				races.get((riderRaces.get(i))).getAdjustedTimes().values().remove(riderId);
-				
-				
 			}
 			//Removes the rider from the team they were in
-			
 		}
 		Team team = Team.findRider(riderId, teams).getTeam();
 		team.getRiders().remove(riderId);
 		team.getOrderedRiderIds().remove(team.getOrderedRiderIds().indexOf(riderId));
 		usedRiderIds.remove(index);
-
 	}
 	/**
 	 * Record the times of a rider in a stage.
@@ -667,9 +639,8 @@ public class CyclingPortalImpl implements CyclingPortal {
 	 *                                     stage while it is "waiting for results".
 	 */
 	@Override
-	public void registerRiderResultsInStage(int stageId, int riderId, LocalTime... checkpoints)
-			throws IDNotRecognisedException, DuplicatedResultException, InvalidCheckpointTimesException,
-			InvalidStageStateException {
+	public void registerRiderResultsInStage(int stageId, int riderId, LocalTime... checkpoints) throws IDNotRecognisedException, 
+	DuplicatedResultException, InvalidCheckpointTimesException,InvalidStageStateException {
 		boolean stageFound = false;
 		boolean riderFound = false;
 		for(int id: usedStageIds) {
@@ -703,15 +674,34 @@ public class CyclingPortalImpl implements CyclingPortal {
 		if(inOrder == false || checkpoints.length != Race.findStage(stageId, races).getCheckpoints().size()+2) {
 			throw new InvalidCheckpointTimesException("You have entered an incorrectly formatted checkpoints list, ensure it contains the rider's times in order for each checkpoint as well as the start and finish time of the given stage.");
 		}
-		
-		//Calculate the elapsed time for that stage and convert it into the format wanted and add it to the stage's results
+		//Converting the final time in the checkpoint array to be a pure LocalTime representation of a duration
 		LocalTime midnight = LocalTime.parse("00:00:00");
 		Duration elapsedTime = Duration.between(checkpoints[0], checkpoints[checkpoints.length-1]);
 		checkpoints[checkpoints.length-1] = midnight.plus(elapsedTime);
 		Race.findStage(stageId, races).getRiderTimes().put(riderId, checkpoints);
-
-		//If the race hasnt already been added to a rider's races, add it
+		//Adding race to rider's enrolled races
 		ArrayList<Integer> riderRaces = Team.findRider(riderId, teams).getRacesEnrolled();
+		//Adding automatically if the rider has no currently enrolled races
+		if(riderRaces.size()==0) {
+			Team.findRider(riderId, teams).getRacesEnrolled().add(Race.findStagesRace(stageId, races).getId());
+		//Adding if the race is not currently in the rider's races
+		} else {
+			if(!riderRaces.contains(Race.findStagesRace(stageId, races).getId())) {
+				Team.findRider(riderId, teams).getRacesEnrolled().add(Race.findStagesRace(stageId, races).getId());
+			}
+		}
+		//Adding a rider to the race's riders
+		ArrayList<Rider> raceRiders = Race.findStagesRace(stageId, races).getRiders();
+		//Adding automatically if the races has no currently enrolled riders
+		if(raceRiders.size()==0) {
+			Race.findStagesRace(stageId, races).getRiders().add(Team.findRider(riderId, teams));
+		//Adding if the rider is not currently in the race's riders
+		} else {
+			if(!raceRiders.contains(Team.findRider(riderId, teams))) {
+				Race.findStagesRace(stageId, races).getRiders().add(Team.findRider(riderId, teams));
+			}
+		}
+		//If the race hasnt already been added to a rider's races, add it
 		for(int i=0; i<riderRaces.size();i++) {
 			if(riderRaces.get(i) == Race.findStage(stageId, races).getRace().getId()) {
 				break;
@@ -721,39 +711,31 @@ public class CyclingPortalImpl implements CyclingPortal {
 			}
 		}
 		//If the rider hasn't been added to the race for the stage, add it
-		ArrayList<Rider> raceRiders = Race.findStagesRace(stageId, races).getRiders();
 		if(raceRiders != null && !raceRiders.contains(Team.findRider(riderId, teams))) {
 			Race.findStagesRace(stageId, races).getRiders().add(Team.findRider(riderId, teams));
 		}
-		
-
 		//Insert the rider id at the appropriate position on the stages leaderboard
 		int[] stagePositions = Race.findStage(stageId, races).getRiderPositions().stream().mapToInt(Integer::intValue).toArray();
-		Map<Integer, LocalTime[]> riderTimes = Race.findStage(stageId, races).getRiderTimes();
-		if(stagePositions.length != 0) {
-			for(int i=0; i<stagePositions.length; i++) {
-				//In the case it is the first result place it in
-				LocalTime currentRacersFinish = riderTimes.get(stagePositions[i])[riderTimes.get(stagePositions[i]).length-1];
-				//In the case it is faster than an index or the same speed place it before
-				if(checkpoints[checkpoints.length-1].compareTo(currentRacersFinish)
-				==-1 || checkpoints[checkpoints.length-1].compareTo(currentRacersFinish)
-				==0) {
-					Race.findStage(stageId, races).getRiderPositions().add(i-1, riderId);
-					break;
-				}
-				//In the case it is the slowest time yet
-				else if(checkpoints[checkpoints.length-1].compareTo(riderTimes.get(stagePositions[stagePositions.length-1])[checkpoints.length-1])
-				==1) {
-					Race.findStage(stageId, races).getRiderPositions().add(riderId);
-					break;
-				}
-					
-			}
-		}else{
+		Map<Integer, LocalTime[]> riderTimeMap = Race.findStage(stageId, races).getRiderTimes();
+		LocalTime riderBeingAddedDuration = checkpoints[checkpoints.length-1];
+		//If there are no other times recorded, immediately add
+		if(riderTimeMap.size()==1) {
 			Race.findStage(stageId, races).getRiderPositions().add(riderId);
+		} else {
+			for(int i=0; i<stagePositions.length; i++) {
+				LocalTime[] currentCheckTimes = riderTimeMap.get(stagePositions[i]);
+				LocalTime currentCheckDuration = currentCheckTimes[currentCheckTimes.length-1];
+				//Check if it is the highest duration so far
+				if(riderBeingAddedDuration.isAfter(riderTimeMap.get(stagePositions[stagePositions.length-1])[checkpoints.length-1])) {
+					Race.findStage(stageId, races).getRiderPositions().add(0, riderId);
+				//Else place it before the first time that has a longer duration than it
+				} else if(riderBeingAddedDuration.isBefore(currentCheckDuration)){
+					Race.findStage(stageId, races).getRiderPositions().add(i, riderId);
+				}
+			}
 		}
-		
-	}
+	} 
+	
 	
 	/**
 	 * Get the times of a rider in a stage.
@@ -791,7 +773,6 @@ public class CyclingPortalImpl implements CyclingPortal {
 
 		return Race.findStage(stageId, races).getRiderTimes().get(riderId);
 	}
-
 	/**
 	 * Gets the adjusted elapsed times for the rider in the stage
 	 * 
@@ -914,7 +895,6 @@ public class CyclingPortalImpl implements CyclingPortal {
 		Map<Integer, LocalTime> adjustedTimes = Race.findStage(stageId, races).adjustTimes(0);
 		return adjustedTimes.values().toArray(new LocalTime[0]);
 	}
-
 	/**
 	 * Get the number of points obtained by each rider in a stage.
 	 * 
@@ -970,7 +950,6 @@ public class CyclingPortalImpl implements CyclingPortal {
 		return Race.findStage(stageId, races).
 		getMountainPoints().values().stream().mapToInt(Integer::intValue).toArray();
 	}
-
 	/**
 	 * Method empties this CyclingPortalImpl of its contents and resets all
 	 * internal counters.
@@ -1173,7 +1152,6 @@ public class CyclingPortalImpl implements CyclingPortal {
 		}
 		return sortedPoints;
 	}
-
 	/**
 	 * Get the general classification rank of riders in a race.
 	 * 
@@ -1296,5 +1274,4 @@ public class CyclingPortalImpl implements CyclingPortal {
 		}
 		return mountainClassification;
 	}
-
 }

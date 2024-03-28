@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -406,59 +407,70 @@ public class CyclingPortalTestApp {
 
 		System.out.println("-------------------------------------------------------");
 
-		try {
-			int r = portal1.createRider(teamId1, "rider5",2003);
-			int[] stages = portal1.getRaceStages(raceId1);
-			int x = 5;
-			for(int i=0; i<stages.length; i++) {
-				// System.out.println(stages[i]);
-				if(i==0){
-					LocalTime[] times = {LocalTime.now(), LocalTime.now().plusMinutes(1+x), LocalTime.now().plusMinutes(2+x), LocalTime.now().plusMinutes(3+x)};
-					portal1.registerRiderResultsInStage(stages[i], r, times);
-				}else if(i==1) {
-					LocalTime[] times = {LocalTime.now(), LocalTime.now().plusMinutes(1+x)};
-					portal1.registerRiderResultsInStage(stages[i], r, times);
-				}else if(i==2) {
-					LocalTime[] times = {LocalTime.now(), LocalTime.now().plusMinutes(1+x)};
-					portal1.registerRiderResultsInStage(stages[i], r, times);
-				}else if(i==3) {
-					LocalTime[] times = {LocalTime.now(), LocalTime.now().plusMinutes(1+x)};
-					portal1.registerRiderResultsInStage(stages[i], r, times);
-				}
-			}
-			int[] riders = portal1.getTeamRiders(teamId1);
-			System.out.println("stage: " + stages[0]);
-			for(int r2: riders) {
-				System.out.println("rider " + r2);
-				// for(int s: stages) {
-				// 	System.out.println(s);
-				// 	LocalTime[] times = portal1.getRiderResultsInStage(s, r2);
-				// 	for(LocalTime t: times) {
-				// 		System.out.println(t);
-				// 	}
-				// 	System.out.println();
-				// }
-				LocalTime[] times = portal1.getRiderResultsInStage(stages[0], r2);
-				for(LocalTime t: times) {
-					System.out.println(t);
-				}
-			}
+	// 	try {
+	// 		int r = portal1.createRider(teamId1, "rider5",2003);
+	// 		int[] stages = portal1.getRaceStages(raceId1);
+	// 		int x = 5;
+	// 		for(int i=0; i<stages.length; i++) {
+	// 			// System.out.println(stages[i]);
+	// 			if(i==0){
+	// 				LocalTime[] times = {LocalTime.now(), LocalTime.now().plusMinutes(1), LocalTime.now().plusMinutes(2), LocalTime.now().plusMinutes(3)};
+	// 				portal1.registerRiderResultsInStage(stages[i], r, times);
+	// 			}else if(i==1) {
+	// 				LocalTime[] times = {LocalTime.now(), LocalTime.now().plusMinutes(1+x)};
+	// 				portal1.registerRiderResultsInStage(stages[i], r, times);
+	// 			}else if(i==2) {
+	// 				LocalTime[] times = {LocalTime.now(), LocalTime.now().plusMinutes(1+x)};
+	// 				portal1.registerRiderResultsInStage(stages[i], r, times);
+	// 			}else if(i==3) {
+	// 				LocalTime[] times = {LocalTime.now(), LocalTime.now().plusMinutes(1+x)};
+	// 				portal1.registerRiderResultsInStage(stages[i], r, times);
+	// 			}
+	// 		}
+	// 		int[] riders = portal1.getTeamRiders(teamId1);
+	// 		System.out.println("stage: " + stages[0]);
+	// 		for(int r2: riders) {
+	// 			System.out.println("rider " + r2);
+	// 			// for(int s: stages) {
+	// 			// 	System.out.println(s);
+	// 			// 	LocalTime[] times = portal1.getRiderResultsInStage(s, r2);
+	// 			// 	for(LocalTime t: times) {
+	// 			// 		System.out.println(t); 
+	// 			// 	}
+	// 			// 	System.out.println();
+	// 			// }
+	// 			LocalTime[] times = portal1.getRiderResultsInStage(stages[0], r2);
+	// 			for(LocalTime t: times) {
+	// 				System.out.println(t);
+	// 			}
+	// 		}
 			
-			System.out.println("results: ");
-			LocalTime[] results = portal1.getRankedAdjustedElapsedTimesInStage(stages[0]);
-			for(LocalTime l: results) {
-				System.out.println(l);
-			}
-		} catch(IDNotRecognisedException e) {
-			e.printStackTrace();
-		} catch(InvalidStageStateException e) {
-			e.printStackTrace();
-		} catch(DuplicatedResultException e) {
-			e.printStackTrace();
-		} catch(InvalidCheckpointTimesException e) {
-			e.printStackTrace();
-		}
-		
+	// 		System.out.println("results: ");
+	// 		LocalTime[] results = portal1.getRankedAdjustedElapsedTimesInStage(stages[0]);
+	// 		for(LocalTime l: results) {
+	// 			System.out.println(l);
+	// 		}
+	// 	} catch(IDNotRecognisedException e) {
+	// 		e.printStackTrace();
+	// 	} catch(InvalidStageStateException e) {
+	// 		e.printStackTrace();
+	// 	} catch(DuplicatedResultException e) {
+	// 		e.printStackTrace();
+	// 	} catch(InvalidCheckpointTimesException e) {
+	// 		e.printStackTrace();
+	// 	}
+	// 	try {
+	// 		portal1.string();
+	// 		portal1.saveCyclingPortal("hello.ser");
+	// 		portal1.eraseCyclingPortal();
+	// 		portal1.string();
+	// 		portal1.loadCyclingPortal("hello.ser");
+	// 		portal1.string();
+	// 	} catch(IOException e) {
+	// 		e.printStackTrace();
+	// 	} catch(ClassNotFoundException e) {
+	// 		e.printStackTrace();
+	// 	}
 		
 	}
 }

@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.io.Serializable;
 
 /**
  * Stage stores information regarding a stage
@@ -14,7 +15,7 @@ import java.util.Map;
  * @version 2.0
  *
  */
-public class Stage {
+public class Stage implements Serializable{
     private int id;
     private String name;
     @SuppressWarnings("unused")
@@ -39,7 +40,6 @@ public class Stage {
     private static final int[] MEDIUMSTAGEPOINTS = {30,25,22,19,17,15,13,11,9,7,6,5,4,3,2};
     private static final int[] HIGHMOUNTAINPOINTS = {20,17,15,13,11,10,9,8,7,6,5,4,3,2,1};
     private static final int[] TIMETRIALPOINTS = {20,17,15,13,11,10,9,8,7,6,5,4,3,2,1};
-
     /**
      * An empty constructor used
      * to make a temporarily empty stage
@@ -79,7 +79,6 @@ public class Stage {
         this.adjustedTimes = new HashMap<Integer, LocalTime>();
         this.checkpoints = new HashMap<Integer, Checkpoint>();
     }
-
     /**
      * Calculates the mountain points for every rider in a stage
      * @return The mountain points for every rider in this stage
@@ -180,21 +179,23 @@ public class Stage {
      */
     public Map<Integer, LocalTime> adjustTimes(int index) {
         System.out.println(riderPositions.size());
-        LocalTime currTime = riderTimes.get(riderPositions.get(index))[riderTimes.size()-1];
-        LocalTime nextTime = riderTimes.get(riderPositions.get(index+1))[riderTimes.size()-1];
-        if(adjustedTimes.isEmpty()) {
-            adjustedTimes.put(riderPositions.get(riderPositions.get(0)), currTime);
-            return adjustTimes(index+1);
+        for(int i: riderPositions) {
+            System.out.println(i);
         }
-        else if(currTime.plusSeconds(1).isAfter(nextTime)) {
-            adjustedTimes.put(riderPositions.get(riderPositions.get(index+1)), currTime);
-            return adjustTimes(index+1);
+
+        LocalTime oldTime = riderTimes.get(riderPositions.get(0))[checkpoints.size()-1];
+        System.out.println(oldTime);
+        adjustedTimes.put(riderPositions.get(0), oldTime);
+        for(int i=0; i<riderPositions.size(); i++) {
+            LocalTime newTime = riderTimes.get(riderPositions.get(i))[checkpoints.size()-1];
+            if(oldTime.plusSeconds(1).isAfter(newTime)) {
+                adjustedTimes.put(riderPositions.get(i), oldTime);
+            }else {
+                oldTime = riderTimes.get(riderPositions.get(i))[checkpoints.size()-1];
+                adjustedTimes.put(riderPositions.get(i), oldTime);
+            }
         }
-        else if(index+1 < riderPositions.size()){
-            adjustedTimes.put(riderPositions.get(riderPositions.get(index+1)), nextTime);
-            return adjustTimes(index+1);
-        }
-        return this.adjustedTimes;
+        return adjustedTimes;
     }
     /**
      * Gets the adjusted times of a race

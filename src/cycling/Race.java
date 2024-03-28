@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.time.LocalTime;
+import java.io.Serializable;
 /**
  * Race stores information regarding a race
  * such as stages and the properties associated with it
@@ -14,10 +15,22 @@ import java.time.LocalTime;
  * @version 2.0
  *
  */
-public class Race {
+public class Race implements Serializable{
+    /**
+     * The unique id of a race
+     */
     private int id;
+    /**
+     * The list of rider ids for a race
+     */
     private ArrayList<Rider> riders;
+    /**
+     * The name of a race
+     */
     private String name;
+    /**
+     * The description of a race
+     */
     private String description;
     private Map<Integer, Stage> stages;
     private ArrayList<Integer> orderedStageIds;
@@ -61,6 +74,7 @@ public class Race {
         this.sprinterClassification = new HashMap<Integer, Integer>();
         this.mountainClassification = new HashMap<Integer, Integer>();
         this.orderedStageIds = new ArrayList<Integer>();
+        this.riders = new ArrayList<Rider>();
     }
     /**
      * Gets the id of a race
@@ -278,6 +292,5 @@ public class Race {
             ", length=' " + this.getLength() + "'" +
             "}";
     }
-
 }
 
