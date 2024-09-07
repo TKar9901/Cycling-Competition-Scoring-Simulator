@@ -1,1 +1,2 @@
-# Uni Y1 Programming Coursework - Cycling Competition Scoring Simulator
+# Cycling Competition Scoring Simulator
+Uni-Y1-PairedProgramming-Coursework
